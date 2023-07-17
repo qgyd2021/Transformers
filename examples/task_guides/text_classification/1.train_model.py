@@ -49,11 +49,26 @@ def get_args():
     )
 
     parser.add_argument(
-        "--output_dir",
-        default="test_trainer",
+        "--file_dir",
+        default="file_dir",
         type=str
     )
 
+    parser.add_argument(
+        "--push_to_hub",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--hub_model_id",
+        default="distilbert-base-uncased-imdb-classification",
+        type=str
+    )
+    parser.add_argument(
+        "--hub_strategy",
+        default="end",
+        choices=["end", "every_save", "checkpoint", "all_checkpoints"],
+        type=str
+    )
     parser.add_argument(
         "--hf_token",
         default=settings.environment.get("hf_token", default=None, dtype=str),
@@ -100,7 +115,7 @@ def main():
     )
 
     training_args = TrainingArguments(
-        output_dir=args.output_dir,
+        output_dir=args.file_dir,
         learning_rate=2e-5,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=16,
@@ -109,7 +124,9 @@ def main():
         evaluation_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
-        push_to_hub=True,
+        push_to_hub=args.push_to_hub,
+        hub_model_id=args.hub_model_id,
+        hub_strategy=args.hub_strategy,
     )
     trainer = Trainer(
         model=model,

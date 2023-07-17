@@ -45,6 +45,8 @@ unzip v4.27.1.zip && rm v4.27.1.zip;
 if [ $system_version == "centos" ]; then
   python_version=3.8.10
 
+  yum install -y git-lfs
+
   cd "${work_dir}" || exit 1;
   sh ./script/install_python.sh --system_version "centos" --python_version "${python_version}"
 
