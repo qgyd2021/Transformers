@@ -17,3 +17,4 @@ huggingface_hub==0.13.2
 torchvision==0.14.1
 accelerate==0.21.0
 python-dotenv==1.0.0
+seqeval==1.2.2
