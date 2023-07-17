@@ -187,7 +187,7 @@ def main():
     )
 
     training_args = TrainingArguments(
-        output_dir="my_awesome_wnut_model",
+        output_dir=args.file_dir,
         learning_rate=2e-5,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=16,
