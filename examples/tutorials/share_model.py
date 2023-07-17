@@ -12,18 +12,8 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
-from accelerate import Accelerator
-from datasets import load_dataset
-import evaluate
-import torch
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
-from transformers import AutoTokenizer
-from transformers import AutoModelForSequenceClassification
-from transformers import get_scheduler
-from transformers.models.auto.modeling_auto import AutoModel
 import huggingface_hub
+from transformers.models.auto.modeling_auto import AutoModel
 
 import project_settings as settings
 

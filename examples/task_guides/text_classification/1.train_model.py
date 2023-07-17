@@ -3,6 +3,10 @@
 """
 https://huggingface.co/docs/transformers/tasks/sequence_classification
 https://huggingface.co/datasets/imdb
+
+export PYTHONPATH="/data/tianxing/PycharmProjects/Transformers"
+
+nohup python3 1.train_model.py &
 """
 import argparse
 import os
@@ -13,19 +17,16 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
-from accelerate import Accelerator
 from datasets import load_dataset
 import evaluate
+import huggingface_hub
 import numpy as np
-import torch
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
 from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from transformers import DataCollatorWithPadding
-from transformers import get_scheduler
 from transformers import TrainingArguments, Trainer
+
+import project_settings as settings
 
 
 def get_args():
@@ -50,6 +51,12 @@ def get_args():
     parser.add_argument(
         "--output_dir",
         default="test_trainer",
+        type=str
+    )
+
+    parser.add_argument(
+        "--hf_token",
+        default=settings.environment.get("hf_token", default=None, dtype=str),
         type=str
     )
     args = parser.parse_args()
@@ -112,6 +119,7 @@ def main():
         compute_metrics=compute_metrics,
     )
 
+    huggingface_hub.login(token=args.hf_token)
     trainer.train()
     trainer.push_to_hub()
 
