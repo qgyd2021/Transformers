@@ -66,6 +66,8 @@ def get_args():
 def main():
     args = get_args()
 
+    huggingface_hub.login(token=args.hf_token)
+
     dataset = load_dataset(
         path=args.dataset_path,
         cache_dir=args.dataset_cache_dir,
@@ -119,7 +121,6 @@ def main():
         compute_metrics=compute_metrics,
     )
 
-    huggingface_hub.login(token=args.hf_token)
     trainer.train()
     trainer.push_to_hub()
 
