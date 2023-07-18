@@ -82,8 +82,6 @@ def main():
     dataset = dataset.train_test_split(test_size=0.2)
     print(dataset["train"][0])
 
-    exit(0)
-
     tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
 
     def preprocess_function(examples):
