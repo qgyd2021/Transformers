@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-https://huggingface.co/docs/transformers/tasks/sequence_classification
-https://huggingface.co/datasets/imdb
+https://huggingface.co/docs/transformers/tasks/question_answering
 """
 import argparse
 import os
@@ -16,7 +15,7 @@ os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 import huggingface_hub
 import torch
 from transformers import AutoTokenizer
-from transformers import AutoModelForTokenClassification
+from transformers import AutoModelForQuestionAnswering
 
 import project_settings as settings
 
@@ -25,12 +24,17 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        default="qgyd2021/distilbert-base-uncased-wnut17-ner",
+        default="qgyd2021/distilbert-base-uncased-squad-question-answering",
         type=str
     )
     parser.add_argument(
-        "--text",
-        default="Do not meddle in the affairs of wizards, for they are subtle and quick to anger.",
+        "--question",
+        default="How many programming languages does BLOOM support?",
+        type=str
+    )
+    parser.add_argument(
+        "--context",
+        default="BLOOM has 176 billion parameters and can generate text in 46 languages natural languages and 13 programming languages.",
         type=str
     )
     parser.add_argument(
@@ -50,18 +54,20 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         pretrained_model_name_or_path=args.pretrained_model_name_or_path
     )
-    inputs = tokenizer(args.text, return_tensors="pt")
+    inputs = tokenizer.__call__(args.text, return_tensors="pt")
 
-    model = AutoModelForTokenClassification.from_pretrained(
+    model = AutoModelForQuestionAnswering.from_pretrained(
         pretrained_model_name_or_path=args.pretrained_model_name_or_path
     )
     with torch.no_grad():
-        logits = model(**inputs).logits
+        outputs = model(**inputs)
 
-    predictions = torch.argmax(logits, dim=2)
-    predicted_token_class = [model.config.id2label[t.item()] for t in predictions[0]]
-    print(predicted_token_class)
+    answer_start_index = outputs.start_logits.argmax()
+    answer_end_index = outputs.end_logits.argmax()
 
+    predict_answer_tokens = inputs.input_ids[0, answer_start_index: answer_end_index + 1]
+    result = tokenizer.decode(predict_answer_tokens)
+    print(result)
     return
 
 

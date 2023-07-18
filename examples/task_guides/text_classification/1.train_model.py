@@ -36,11 +36,6 @@ def get_args():
         default="distilbert-base-uncased",
         type=str
     )
-    parser.add_argument(
-        "--text",
-        default="Do not meddle in the affairs of wizards, for they are subtle and quick to anger.",
-        type=str
-    )
     parser.add_argument("--dataset_path", default="imdb", type=str)
     parser.add_argument(
         "--dataset_cache_dir",

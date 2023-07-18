@@ -10,6 +10,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 from transformers.models.bert.tokenization_bert import BertTokenizer
+from transformers.models.bert.tokenization_bert_fast import BertTokenizerFast
 
 
 def get_args():
@@ -49,6 +50,14 @@ def main():
         truncation=True,
     )
     print(result)
+
+    # fast
+    tokenizer: BertTokenizerFast = BertTokenizerFast.from_pretrained(
+        pretrained_model_name_or_path=args.pretrained_model_name_or_path
+    )
+    result = tokenizer(args.text)
+    print(result)
+    print(result.word_ids(0))
     return
 
 

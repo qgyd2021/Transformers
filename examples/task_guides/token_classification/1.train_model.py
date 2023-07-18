@@ -21,6 +21,7 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForTokenClassification
 from transformers import DataCollatorForTokenClassification
 from transformers import TrainingArguments, Trainer
+from transformers.tokenization_utils_base import BatchEncoding
 
 import project_settings as settings
 
@@ -100,7 +101,11 @@ def main():
     print(tokens)
 
     def tokenize_and_align_labels(examples):
-        tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True)
+        tokenized_inputs: BatchEncoding = tokenizer.__call__(
+            text=examples["tokens"],
+            truncation=True,
+            is_split_into_words=True
+        )
 
         labels = []
         for i, label in enumerate(examples[f"ner_tags"]):
