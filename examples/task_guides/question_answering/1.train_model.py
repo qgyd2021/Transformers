@@ -86,7 +86,7 @@ def main():
 
     def preprocess_function(examples):
         questions = [q.strip() for q in examples["question"]]
-        inputs = tokenizer(
+        inputs = tokenizer.__call__(
             questions,
             examples["context"],
             max_length=384,

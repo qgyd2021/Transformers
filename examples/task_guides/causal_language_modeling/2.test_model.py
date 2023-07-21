@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-https://huggingface.co/docs/transformers/tasks/question_answering
+https://huggingface.co/docs/transformers/tasks/language_modeling
 """
 import argparse
 import os
@@ -15,8 +15,8 @@ os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 import huggingface_hub
 import torch
 from transformers import AutoTokenizer
-from transformers import AutoModelForQuestionAnswering
-from transformers.models.bert.modeling_bert import BertForQuestionAnswering
+from transformers import AutoModelForCausalLM
+from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
 import project_settings as settings
 
@@ -25,17 +25,12 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        default="qgyd2021/distilbert-base-uncased-squad-question-answering",
+        default="qgyd2021/distilgpt2-eli5-casual-language-model",
         type=str
     )
     parser.add_argument(
-        "--question",
-        default="How many programming languages does BLOOM support?",
-        type=str
-    )
-    parser.add_argument(
-        "--context",
-        default="BLOOM has 176 billion parameters and can generate text in 46 languages natural languages and 13 programming languages.",
+        "--prompt",
+        default="Somatic hypermutation allows the immune system to",
         type=str
     )
     parser.add_argument(
@@ -55,20 +50,13 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         pretrained_model_name_or_path=args.pretrained_model_name_or_path
     )
-    inputs = tokenizer.__call__(args.question, args.context, return_tensors="pt")
+    inputs = tokenizer.__call__(args.prompt, return_tensors="pt").input_ids
 
-    model: BertForQuestionAnswering = AutoModelForQuestionAnswering.from_pretrained(
+    model: GPT2LMHeadModel = AutoModelForCausalLM.from_pretrained(
         pretrained_model_name_or_path=args.pretrained_model_name_or_path
     )
-    with torch.no_grad():
-        outputs = model(**inputs)
-
-    answer_start_index = outputs.start_logits.argmax()
-    answer_end_index = outputs.end_logits.argmax()
-
-    predict_answer_tokens = inputs.input_ids[0, answer_start_index: answer_end_index + 1]
-    result = tokenizer.decode(predict_answer_tokens)
-    print(result)
+    outputs = model.generate(inputs, max_new_tokens=100, do_sample=True, top_k=50, top_p=0.95)
+    print(outputs)
     return
 
 
