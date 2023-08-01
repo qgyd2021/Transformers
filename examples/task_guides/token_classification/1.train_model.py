@@ -127,6 +127,7 @@ def main():
 
     tokenized_dataset = dataset.map(tokenize_and_align_labels, batched=True)
     print((tokenized_dataset["train"][0]))
+    exit(0)
 
     data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 

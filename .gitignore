@@ -2,6 +2,12 @@
 .git/
 .idea/
 
+dotenv/
+hub_datasets
+pretrained_models/
+thirdparty/
+trained_models/
+
 **/cache/
 **/cache_dir/
 **/data/
@@ -15,12 +21,6 @@
 **/temp/
 **/vocabulary/
 **/__pycache__/
-
-dotenv/
-hub_datasets
-pretrained_models/
-thirdparty/
-trained_models/
 
 **/*.bib
 **/*.bin
