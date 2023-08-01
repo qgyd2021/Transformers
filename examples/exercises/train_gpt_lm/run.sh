@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# sh run.sh --stage -1 --stop_stage -1
+# nohup sh run.sh --stage -1 --stop_stage 1 --system_version centos &
 # sh run.sh --stage 0 --stop_stage 0
 # sh run.sh --stage 1 --stop_stage 1
 # sh run.sh --stage -1 --stop_stage 1
@@ -49,7 +49,7 @@ $verbose && echo "system_version: ${system_version}"
 
 work_dir="$(pwd)"
 file_dir="$(pwd)/file_dir"
-checkpoint_dir="${file_dir}checkpoint_dir"
+checkpoint_dir="${file_dir}/checkpoint_dir"
 
 mkdir -p "${file_dir}"
 mkdir -p "${checkpoint_dir}"
