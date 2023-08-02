@@ -32,7 +32,7 @@ def get_args():
     )
     parser.add_argument("--truncate_longer_samples", action="store_true")
     parser.add_argument("--max_length", default=1024, type=int)
-    parser.add_argument("--batch_size", default=64, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
 
     parser.add_argument('--cache_dir', default='cache', type=str)
     parser.add_argument("--output_dir", default=None, type=str)
@@ -111,10 +111,6 @@ def main():
         tokenizer=tokenizer, mlm=False
     )
 
-    os.environ["LOCAL_RANK"] = "0"
-    os.environ["RANK"] = "0"
-    os.environ["WORLD_SIZE"] = "1"
-
     training_args = TrainingArguments(
         output_dir=args.output_dir,
         evaluation_strategy="steps",
@@ -122,13 +118,11 @@ def main():
         num_train_epochs=10,
         per_device_train_batch_size=args.batch_size,
         gradient_accumulation_steps=1,
-        per_device_eval_batch_size=64,
+        per_device_eval_batch_size=16,
         logging_steps=1000,
         save_steps=1000,
         fp16=True,
-        local_rank=0,
-        xpu_backend="ccl",
-        sharded_ddp="zero_dp_2 offload",
+        local_rank=-1,
         # load_best_model_at_end=True,
         save_total_limit=5,
     )
