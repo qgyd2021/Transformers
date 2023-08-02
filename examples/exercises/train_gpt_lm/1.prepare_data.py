@@ -7,7 +7,7 @@ import random
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--corpus_file", default="lh .txt", type=str)
+    parser.add_argument("--corpus_file", default="四书五经.txt", type=str)
     parser.add_argument("--train_subset", default="train.txt", type=str)
     parser.add_argument("--valid_subset", default="valid.txt", type=str)
 
