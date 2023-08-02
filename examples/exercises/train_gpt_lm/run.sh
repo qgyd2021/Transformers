@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# nohup sh run.sh --stage -1 --stop_stage 1 --system_version centos &
+# nohup sh run.sh --stage 0 --stop_stage 0 --system_version centos &
 # sh run.sh --stage 0 --stop_stage 1 --system_version windows
 # sh run.sh --stage 1 --stop_stage 1
 # sh run.sh --stage -1 --stop_stage 1
@@ -12,7 +12,6 @@ stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
 train_subset=train.txt
-valid_subset=valid.txt
 
 pretrained_model_name=gpt2-chinese-cluecorpussmall
 
@@ -86,15 +85,8 @@ pretrained_model_dir="${pretrained_models_dir}/${pretrained_model_name}"
 
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
-  $verbose && echo "stage -1: download corpus and pretrained model"
+  $verbose && echo "stage -1: download pretrained model"
   cd "${file_dir}" || exit 1;
-
-  # http://www.uzzf.com/soft/185694.html
-  if [ ! -e "sishuwj.zip" ]; then
-    wget -c http://u15.929825.com/pc/sishuwj.zip
-    unzip sishuwj.zip;
-    mv "四书五经原文译文注解(免费完整下载版).TXT" "四书五经.txt"
-  fi
 
   if [ ! -d "${pretrained_model_dir}" ]; then
     cd "${pretrained_models_dir}" || exit 1;
@@ -110,24 +102,11 @@ fi
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-  $verbose && echo "stage 0: prepare data"
-  cd "${work_dir}" || exit 1;
-
-  python3 1.prepare_data.py \
-  --corpus_file "${file_dir}/四书五经.txt" \
-  --train_subset "${file_dir}/${train_subset}" \
-  --valid_subset "${file_dir}/${valid_subset}" \
-
-fi
-
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: fine tune"
   cd "${work_dir}" || exit 1;
 
   python3 2.train_model.py \
   --train_subset "${file_dir}/${train_subset}" \
-  --valid_subset "${file_dir}/${valid_subset}" \
   --pretrained_model_dir "${pretrained_model_dir}" \
   --cache_dir "${dataset_cache_dir}" \
   --output_dir "${checkpoint_dir}" \
