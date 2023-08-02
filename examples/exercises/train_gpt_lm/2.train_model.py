@@ -122,6 +122,7 @@ def main():
         logging_steps=1000,
         save_steps=1000,
         fp16=True,
+        sharded_ddp="zero_dp_2 offload",
         # load_best_model_at_end=True,
         save_total_limit=5,
     )
