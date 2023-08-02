@@ -129,12 +129,11 @@ def main():
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,
-        evaluation_strategy="steps",
+        evaluation_strategy="no",
         overwrite_output_dir=True,
         num_train_epochs=10,
         per_device_train_batch_size=args.batch_size,
         gradient_accumulation_steps=16,
-        # per_device_eval_batch_size=16,
         logging_steps=1000,
         save_steps=1000,
         fp16=True if torch.cuda.is_available() else False,
