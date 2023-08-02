@@ -33,8 +33,8 @@ def get_args():
     )
 
     parser.add_argument("--dataset_path", default="wybxc/books", type=str)
-    # parser.add_argument("--dataset_split", default=None, type=str)
-    parser.add_argument("--dataset_split", default="train[:5000]", type=str)
+    parser.add_argument("--dataset_split", default=None, type=str)
+    # parser.add_argument("--dataset_split", default="train[:5000]", type=str)
     parser.add_argument(
         "--dataset_cache_dir",
         default=(project_path / "hub_datasets").as_posix(),
@@ -60,13 +60,6 @@ def main():
         split=args.dataset_split,
         cache_dir=args.dataset_cache_dir,
     )
-
-    # dataset
-    # dataset_dict = DatasetDict({
-    #     "train": load_dataset(
-    #         "text", data_files=[str(file) for file in [args.train_subset]]
-    #     )["train"],
-    # })
 
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_dir)
     model = GPT2LMHeadModel.from_pretrained(args.pretrained_model_dir)
