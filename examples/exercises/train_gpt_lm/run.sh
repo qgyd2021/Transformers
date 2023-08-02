@@ -105,7 +105,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   $verbose && echo "stage 1: fine tune"
   cd "${work_dir}" || exit 1;
 
-  python3 2.train_model.py \
+  python3 1.train_model.py \
   --train_subset "${file_dir}/${train_subset}" \
   --pretrained_model_dir "${pretrained_model_dir}" \
   --cache_dir "${dataset_cache_dir}" \
