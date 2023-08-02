@@ -50,11 +50,11 @@ $verbose && echo "system_version: ${system_version}"
 work_dir="$(pwd)"
 file_dir="$(pwd)/file_dir"
 checkpoint_dir="${file_dir}/checkpoint_dir"
+pretrained_models_dir="${work_dir}/../../pretrained_models";
 
 mkdir -p "${file_dir}"
 mkdir -p "${checkpoint_dir}"
-
-pretrained_models_dir="${work_dir}/../../pretrained_models";
+mkdir -p "${pretrained_models_dir}"
 
 export PYTHONPATH="${work_dir}/../.."
 
@@ -84,12 +84,10 @@ pretrained_model_dir="${pretrained_models_dir}/${pretrained_model_name}"
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
   $verbose && echo "stage -1: download corpus and pretrained model"
-
-  mkdir -p "${file_dir}"
+  cd "${file_dir}" || exit 1;
 
   # http://www.uzzf.com/soft/185694.html
-  if [ ! -e "${file_dir}/sishuwj.zip" ]; then
-    cd "${file_dir}" || exit 1;
+  if [ ! -e "sishuwj.zip" ]; then
     wget -c http://u15.929825.com/pc/sishuwj.zip
     unzip sishuwj.zip;
     mv "四书五经原文译文注解(免费完整下载版).TXT" "四书五经.txt"
@@ -98,7 +96,6 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
   echo "pretrained_model_dir: ${pretrained_model_dir}";
 
   if [ ! -d "${pretrained_model_dir}" ]; then
-    mkdir -p "${pretrained_models_dir}"
     cd "${pretrained_models_dir}" || exit 1;
 
     repository_url="${pretrained_model_dict[${pretrained_model_name}]}"
@@ -113,22 +110,24 @@ fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   $verbose && echo "stage 0: prepare data"
-  mkdir -p "${file_dir}"
+  cd "${work_dir}" || exit 1;
+
   python3 1.prepare_data.py \
   --corpus_file "${file_dir}/四书五经.txt" \
-  --train_subset "${train_subset}" \
-  --valid_subset "${valid_subset}"
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
 
 fi
 
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: fine tune"
+  cd "${work_dir}" || exit 1;
 
   python3 2.train_model.py \
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
+  --pretrained_model_dir "${pretrained_model_dir}" \
   --output_dir "${checkpoint_dir}" \
-  --pretrained_model_dir "${pretrained_model_dir}"
 
 fi
