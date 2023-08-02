@@ -111,6 +111,10 @@ def main():
         tokenizer=tokenizer, mlm=False
     )
 
+    os.environ["LOCAL_RANK"] = 0
+    os.environ["RANK"] = 0
+    os.environ["WORLD_SIZE"] = 1
+
     training_args = TrainingArguments(
         output_dir=args.output_dir,
         evaluation_strategy="steps",
@@ -128,6 +132,23 @@ def main():
         # load_best_model_at_end=True,
         save_total_limit=5,
     )
+
+    training_info = """
+    TRAINING_INFO:    
+ 
+    n_gpu: {n_gpu}
+    parallel_mode: {parallel_mode}
+    world_size: {world_size}
+    device: {device}
+    """.format(
+        n_gpu=training_args.n_gpu,
+        parallel_mode=training_args.parallel_mode,
+        world_size=training_args.world_size,
+        device=training_args.device,
+
+    )
+    print(training_info)
+
     trainer = Trainer(
         model=model,
         args=training_args,
