@@ -111,9 +111,9 @@ def main():
         tokenizer=tokenizer, mlm=False
     )
 
-    os.environ["LOCAL_RANK"] = 0
-    os.environ["RANK"] = 0
-    os.environ["WORLD_SIZE"] = 1
+    os.environ["LOCAL_RANK"] = "0"
+    os.environ["RANK"] = "0"
+    os.environ["WORLD_SIZE"] = "1"
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,
