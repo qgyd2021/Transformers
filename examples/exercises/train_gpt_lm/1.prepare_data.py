@@ -20,7 +20,8 @@ def get_args():
 def main():
     args = get_args()
 
-    with open(args.corpus_file, "r", encoding="ansi") as fin, \
+    # ANSI is not a python build-in encoding type, use ISO-8859-1 instead.
+    with open(args.corpus_file, "r", encoding="ISO-8859-1") as fin, \
         open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
 
