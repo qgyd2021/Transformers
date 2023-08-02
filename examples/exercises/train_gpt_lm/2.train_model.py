@@ -7,6 +7,7 @@ https://www.thepythoncode.com/article/pretraining-bert-huggingface-transformers-
 """
 import argparse
 from itertools import chain
+import os
 from pathlib import Path
 
 from datasets import Dataset, DatasetDict, load_dataset
@@ -33,6 +34,7 @@ def get_args():
     parser.add_argument("--max_length", default=1024, type=int)
     parser.add_argument("--batch_size", default=64, type=int)
 
+    parser.add_argument('--cache_dir', default='cache', type=str)
     parser.add_argument("--output_dir", default=None, type=str)
 
     args = parser.parse_args()
@@ -81,23 +83,29 @@ def main():
 
     if args.truncate_longer_samples:
         train_dataset = dataset_dict["train"].map(encode_with_truncation, batched=True)
-        test_dataset = dataset_dict["valid"].map(encode_with_truncation, batched=True)
+        valid_dataset = dataset_dict["valid"].map(encode_with_truncation, batched=True)
         train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        test_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        valid_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
         train_dataset = dataset_dict["train"].map(encode_without_truncation, batched=True)
-        test_dataset = dataset_dict["valid"].map(encode_without_truncation, batched=True)
+        valid_dataset = dataset_dict["valid"].map(encode_without_truncation, batched=True)
         train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        test_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        valid_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
         train_dataset = train_dataset.map(
-            group_texts, batched=True, desc="Grouping texts in chunks of {}".format(args.max_length)
+            group_texts,
+            batched=True,
+            desc="Grouping texts in chunks of {}".format(args.max_length),
+            cache_file_name=os.path.join(args.cache_dir, "train.cache")
         )
-        test_dataset = test_dataset.map(
-            group_texts, batched=True, desc="Grouping texts in chunks of {}".format(args.max_length)
+        valid_dataset = valid_dataset.map(
+            group_texts,
+            batched=True,
+            desc="Grouping texts in chunks of {}".format(args.max_length),
+            cache_file_name=os.path.join(args.cache_dir, "valid.cache")
         )
         train_dataset.set_format("torch")
-        test_dataset.set_format("torch")
+        valid_dataset.set_format("torch")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
@@ -122,7 +130,7 @@ def main():
         args=training_args,
         data_collator=data_collator,
         train_dataset=train_dataset,
-        eval_dataset=test_dataset,
+        eval_dataset=valid_dataset,
     )
     trainer.train()
     return

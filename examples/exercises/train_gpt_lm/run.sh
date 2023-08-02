@@ -50,11 +50,14 @@ $verbose && echo "system_version: ${system_version}"
 work_dir="$(pwd)"
 file_dir="$(pwd)/file_dir"
 checkpoint_dir="${file_dir}/checkpoint_dir"
-pretrained_models_dir="${work_dir}/../../pretrained_models";
+pretrained_models_dir="${work_dir}/../../../pretrained_models";
+dataset_cache_dir="${file_dir}/cache_dir"
 
 mkdir -p "${file_dir}"
 mkdir -p "${checkpoint_dir}"
 mkdir -p "${pretrained_models_dir}"
+mkdir -p "${dataset_cache_dir}"
+
 
 export PYTHONPATH="${work_dir}/../../.."
 
@@ -126,6 +129,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
   --pretrained_model_dir "${pretrained_model_dir}" \
+  --cache_dir "${dataset_cache_dir}" \
   --output_dir "${checkpoint_dir}" \
 
 fi
