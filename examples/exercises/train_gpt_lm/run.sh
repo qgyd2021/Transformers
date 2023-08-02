@@ -93,8 +93,6 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     mv "四书五经原文译文注解(免费完整下载版).TXT" "四书五经.txt"
   fi
 
-  echo "pretrained_model_dir: ${pretrained_model_dir}";
-
   if [ ! -d "${pretrained_model_dir}" ]; then
     cd "${pretrained_models_dir}" || exit 1;
 

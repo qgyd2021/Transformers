@@ -113,6 +113,7 @@ def main():
         per_device_eval_batch_size=64,
         logging_steps=1000,
         save_steps=1000,
+        fp16=True,
         # load_best_model_at_end=True,
         save_total_limit=5,
     )
