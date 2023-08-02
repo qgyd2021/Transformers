@@ -9,8 +9,10 @@ import argparse
 from itertools import chain
 import os
 from pathlib import Path
+import platform
 
 from datasets import Dataset, DatasetDict, load_dataset
+import torch
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 from transformers.models.bert.tokenization_bert import BertTokenizer
@@ -23,18 +25,26 @@ from project_settings import project_path
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--train_subset", default="file_dir/train.txt", type=str)
-    parser.add_argument("--valid_subset", default="file_dir/valid.txt", type=str)
 
     parser.add_argument(
         "--pretrained_model_dir",
         default=(project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix(),
         type=str
     )
+
+    parser.add_argument("--dataset_path", default="wybxc/books", type=str)
+    parser.add_argument("--dataset_split", default=None, type=str)
+    parser.add_argument(
+        "--dataset_cache_dir",
+        default=(project_path / "hub_datasets").as_posix(),
+        type=str
+    )
+
     parser.add_argument("--truncate_longer_samples", action="store_true")
     parser.add_argument("--max_length", default=1024, type=int)
     parser.add_argument("--batch_size", default=4, type=int)
 
-    parser.add_argument('--cache_dir', default='cache', type=str)
+    parser.add_argument("--cache_dir", default="file_dir/cache", type=str)
     parser.add_argument("--output_dir", default=None, type=str)
 
     args = parser.parse_args()
@@ -44,15 +54,18 @@ def get_args():
 def main():
     args = get_args()
 
+    dataset_dict = load_dataset(
+        args.dataset_path,
+        split=args.dataset_split,
+        cache_dir=args.dataset_cache_dir,
+    )
+
     # dataset
-    dataset_dict = DatasetDict({
-        "train": load_dataset(
-            "text", data_files=[str(file) for file in [args.train_subset]]
-        )["train"],
-        "valid": load_dataset(
-            "text", data_files=[str(file) for file in [args.valid_subset]]
-        )["train"]
-    })
+    # dataset_dict = DatasetDict({
+    #     "train": load_dataset(
+    #         "text", data_files=[str(file) for file in [args.train_subset]]
+    #     )["train"],
+    # })
 
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_dir)
     model = GPT2LMHeadModel.from_pretrained(args.pretrained_model_dir)
@@ -82,30 +95,39 @@ def main():
         return result
 
     if args.truncate_longer_samples:
-        train_dataset = dataset_dict["train"].map(encode_with_truncation, batched=True)
-        valid_dataset = dataset_dict["valid"].map(encode_with_truncation, batched=True)
-        train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        valid_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        dataset_dict = dataset_dict.map(
+            encode_with_truncation,
+            batched=True,
+            keep_in_memory=False,
+            num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
+            # cache_file_names={
+            #     "train": os.path.join(args.cache_dir, "train_tokenized.cache")
+            # }
+        )
+        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
-        train_dataset = dataset_dict["train"].map(encode_without_truncation, batched=True)
-        valid_dataset = dataset_dict["valid"].map(encode_without_truncation, batched=True)
-        train_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        valid_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        dataset_dict = dataset_dict.map(
+            encode_without_truncation,
+            batched=True,
+            keep_in_memory=False,
+            num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
+            # cache_file_names={
+            #     "train": os.path.join(args.cache_dir, "train_tokenized.cache")
+            # }
+        )
+        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
-        train_dataset = train_dataset.map(
+        dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
             desc="Grouping texts in chunks of {}".format(args.max_length),
-            cache_file_name=os.path.join(args.cache_dir, "train.cache")
+            keep_in_memory=False,
+            num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
+            # cache_file_names={
+            #     "train": os.path.join(args.cache_dir, "train.cache")
+            # },
         )
-        valid_dataset = valid_dataset.map(
-            group_texts,
-            batched=True,
-            desc="Grouping texts in chunks of {}".format(args.max_length),
-            cache_file_name=os.path.join(args.cache_dir, "valid.cache")
-        )
-        train_dataset.set_format("torch")
-        valid_dataset.set_format("torch")
+        dataset_dict.set_format("torch")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
@@ -121,10 +143,11 @@ def main():
         # per_device_eval_batch_size=16,
         logging_steps=1000,
         save_steps=1000,
-        fp16=True,
+        fp16=True if torch.cuda.is_available() else False,
         local_rank=-1,
         # load_best_model_at_end=True,
         save_total_limit=5,
+        report_to="tensorboard"
     )
 
     training_info = """
@@ -139,7 +162,6 @@ def main():
         parallel_mode=training_args.parallel_mode,
         world_size=training_args.world_size,
         device=training_args.device,
-
     )
     print(training_info)
 
@@ -147,8 +169,7 @@ def main():
         model=model,
         args=training_args,
         data_collator=data_collator,
-        train_dataset=train_dataset,
-        # eval_dataset=valid_dataset,
+        train_dataset=dataset_dict["train"],
     )
     trainer.train()
     return
