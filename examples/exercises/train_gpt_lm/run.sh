@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # nohup sh run.sh --stage -1 --stop_stage 1 --system_version centos &
-# sh run.sh --stage 0 --stop_stage 0
+# sh run.sh --stage 0 --stop_stage 0 --system_version windows
 # sh run.sh --stage 1 --stop_stage 1
 # sh run.sh --stage -1 --stop_stage 1
 

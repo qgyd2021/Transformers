@@ -20,7 +20,7 @@ def get_args():
 def main():
     args = get_args()
 
-    with open(args.corpus_file, "r", encoding="utf-8") as fin, \
+    with open(args.corpus_file, "r", encoding="ansi") as fin, \
         open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
 
@@ -34,10 +34,8 @@ def main():
             if len(row) < args.min_chars:
                 continue
 
-            if random.random() < 0.8:
-                ftrain.write("{}\n".format(line))
-            else:
-                fvalid.write("{}\n".format(line))
+            ftrain.write("{}\n".format(line))
+            fvalid.write("{}\n".format(line))
 
     return
 
