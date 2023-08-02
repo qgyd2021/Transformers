@@ -56,7 +56,7 @@ mkdir -p "${file_dir}"
 mkdir -p "${checkpoint_dir}"
 mkdir -p "${pretrained_models_dir}"
 
-export PYTHONPATH="${work_dir}/../.."
+export PYTHONPATH="${work_dir}/../../.."
 
 
 if [ $system_version == "windows" ]; then
