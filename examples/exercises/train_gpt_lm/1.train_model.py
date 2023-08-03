@@ -82,6 +82,8 @@ def main():
         total_length = len(concatenated_examples[list(examples.keys())[0]])
         if total_length >= args.max_length:
             total_length = (total_length // args.max_length) * args.max_length
+        else:
+            raise AssertionError("total_length: {} < args.max_length: {}".format(args.max_length, args.max_length))
         result = {
             k: [t[i: i + args.max_length] for i in range(0, total_length, args.max_length)]
             for k, t in concatenated_examples.items()
