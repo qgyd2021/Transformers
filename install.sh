@@ -7,7 +7,8 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-python_version=3.8.10
+#python_version=3.8.10
+python_version=3.10.11
 
 # parse options
 while true; do
