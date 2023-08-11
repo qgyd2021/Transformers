@@ -35,7 +35,7 @@ trained_models/
 **/*.h5
 **/*.ipynb
 **/*.jpg
-**/*.json
+**/*.jsonl
 **/*.list
 **/*.map
 **/*.mp3

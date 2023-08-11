@@ -1,4 +1,7 @@
-transformers==4.27.1
+git+https://github.com/huggingface/peft.git
+git+https://github.com/huggingface/accelerate.git
+git+https://github.com/huggingface/transformers.git
+git+https://github.com/TimDettmers/bitsandbytes.git
 torch==1.13.1
 datasets==2.10.1
 librosa==0.10.0
@@ -15,6 +18,7 @@ openpyxl==3.0.9
 editdistance==0.6.2
 huggingface_hub==0.13.2
 torchvision==0.14.1
-accelerate==0.21.0
 python-dotenv==1.0.0
 seqeval==1.2.2
+deepspeed==0.9.5
+mpi4py==3.1.4
