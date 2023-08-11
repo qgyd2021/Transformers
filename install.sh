@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# sh install.sh --system_version centos --stage 1 --stop_stage 1
+# sh install.sh --system_version centos --stage 0 --stop_stage 1
 
 system_version="centos";
 verbose=true;
@@ -8,7 +8,10 @@ stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
 #python_version=3.8.10
+#python_bin=python3.8
+
 python_version=3.10.11
+python_bin=python3.10
 
 # parse options
 while true; do
@@ -57,7 +60,7 @@ if [ $system_version == "centos" ]; then
 
     cd "${work_dir}" || exit 1;
 
-    /usr/local/python-${python_version}/bin/python3.8 -m pip install --upgrade pip
+    /usr/local/python-${python_version}/bin/${python_bin} -m pip install --upgrade pip
     mkdir -p /data/local/bin
     cd /data/local/bin || exit 1;
     # source /data/local/bin/Transformers/bin/activate
