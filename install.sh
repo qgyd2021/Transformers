@@ -59,8 +59,8 @@ if [ $system_version == "centos" ]; then
     /usr/local/python-${python_version}/bin/python3.8 -m pip install --upgrade pip
     mkdir -p /data/local/bin
     cd /data/local/bin || exit 1;
-    # source /data/local/bin/PyTorch/bin/activate
-    /usr/local/python-${python_version}/bin/virtualenv PyTorch
+    # source /data/local/bin/Transformers/bin/activate
+    /usr/local/python-${python_version}/bin/virtualenv Transformers
   fi
 
 fi
