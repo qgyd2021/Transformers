@@ -67,7 +67,7 @@ def get_args():
 def main():
     args = get_args()
 
-    os.makedirs(args.serialization_dir, exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
