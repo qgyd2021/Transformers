@@ -129,52 +129,7 @@ def main():
         no_cuda=args.no_cuda,
         fp16=args.fp16,
         half_precision_backend=args.half_precision_backend,
-        deepspeed={
-            "gradient_accumulation_steps": "auto",
-            "gradient_clipping": "auto",
-            "steps_per_print": 200,
-            "train_batch_size": "auto",
-            "train_micro_batch_size_per_gpu": "auto",
-            "wall_clock_breakdown": False,
-
-            "optimizer": {
-                "type": "Adam",
-                "params": {
-                    "lr": "auto",
-                    "betas": "auto",
-                    "eps": "auto",
-                    "weight_decay": "auto"
-                }
-            },
-            "fp16": {
-                "enabled": "auto",
-                "loss_scale": 0,
-                "loss_scale_window": 1000,
-                "initial_scale_power": 16,
-                "hysteresis": 2,
-                "min_loss_scale": 1
-            },
-            "zero_optimization": {
-                "stage": 3,
-                "overlap_comm": True,
-                "contiguous_gradients": True,
-                "sub_group_size": 1e9,
-                "reduce_bucket_size": "auto",
-                "stage3_prefetch_bucket_size": "auto",
-                "stage3_param_persistence_threshold": "auto",
-                "stage3_max_live_parameters": 1e9,
-                "stage3_max_reuse_distance": 1e9,
-                "stage3_gather_16bit_weights_on_model_save": True
-            },
-            "scheduler": {
-                "type": "WarmupLR",
-                "params": {
-                    "warmup_min_lr": "auto",
-                    "warmup_max_lr": "auto",
-                    "warmup_num_steps": "auto"
-                }
-            }
-        },
+        deepspeed=args.deepspeed,
         report_to=args.report_to,
         gradient_checkpointing=args.gradient_checkpointing,
     )
