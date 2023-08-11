@@ -16,7 +16,7 @@ from transformers.training_args import TrainingArguments
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--corpus_file",
+        "--train_file",
         # default='firefly-train-1.1M.jsonl',
         default="D:/programmer/nlp_datasets/firefly-train-1.1M.jsonl",
         type=str
@@ -29,23 +29,36 @@ def get_args():
     )
     parser.add_argument("--cache_dir", default="cache_dir", type=str)
 
-    parser.add_argument("--serialization_dir", default="serialization_dir", type=str)
+    parser.add_argument("--output_dir", default="serialization_dir", type=str)
+    parser.add_argument("--overwrite_output_dir", action="store_true", type=bool)
     parser.add_argument("--evaluation_strategy", default="no", choices=["no", "steps", "epoch"], type=str)
-
-    parser.add_argument("--truncate_longer_samples", action="store_true")
-    parser.add_argument("--max_length", default=512, type=int)
-
     parser.add_argument("--per_device_train_batch_size", default=4, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=16, type=int)
-    parser.add_argument("--learning_rate", default=3e-5, type=float)
-
-    parser.add_argument("--num_train_epochs", default=3.0, type=float)
+    parser.add_argument("--gradient_accumulation_steps", default=4, type=int)
+    parser.add_argument("--learning_rate", default=1e-5, type=float)
+    parser.add_argument("--weight_decay", default=0, type=float)
+    parser.add_argument("--max_grad_norm", default=1.0, type=float)
+    parser.add_argument("--num_train_epochs", default=1.0, type=float)
     parser.add_argument("--max_steps", default=-1, type=int)
-
-    parser.add_argument("--no_cuda", action="store_true",
-                        help="when use `--no_cuda` in command line, the value is True otherwise False")
+    parser.add_argument("--lr_scheduler_type", default="cosine", type=str)
+    parser.add_argument("--warmup_ratio", default=0.0, type=float)
+    parser.add_argument("--warmup_steps", default=3000, type=int)
+    parser.add_argument("--logging_steps", default=300, type=int)
+    parser.add_argument("--save_strategy", default="steps", type=str)
+    parser.add_argument("--save_steps", default=500, type=int)
+    parser.add_argument("--save_total_limit", default=3, type=int)
+    parser.add_argument("--no_cuda", action="store_true", type=bool)
+    parser.add_argument("--seed", default=3407, type=str, help="https://arxiv.org/abs/2109.08203")
     parser.add_argument("--fp16", action="store_true")
     parser.add_argument("--half_precision_backend", default="auto", type=str)
+    parser.add_argument("--dataloader_num_workers", default=5, type=int)
+    parser.add_argument("--disable_tqdm", action="store_false", type=bool)
+    parser.add_argument("--remove_unused_columns", action="store_false", type=bool)
+    parser.add_argument("--optim", default="adamw_hf", type=str)
+    parser.add_argument("--report_to", default="tensorboard", type=str)
+    parser.add_argument("--gradient_checkpointing", action="store_true", type=bool)
+
+    parser.add_argument("--truncate_longer_samples", action="store_true")
+    parser.add_argument("--max_seq_length", default=512, type=int)
 
     args = parser.parse_args()
     return args
@@ -59,7 +72,7 @@ def main():
 
     # dataset
     dataset_dict = DatasetDict()
-    train_data_files = [args.corpus_file]
+    train_data_files = [args.train_file]
     dataset_dict["train"] = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files]
     )["train"]
@@ -77,7 +90,7 @@ def main():
             text,
             truncation=True,
             # padding='max_length',
-            max_length=args.max_length,
+            max_length=args.max_seq_length,
             return_special_tokens_mask=True
 
         )
@@ -99,23 +112,70 @@ def main():
         tokenizer=tokenizer, mlm=False
     )
     training_args = TrainingArguments(
-        output_dir=args.serialization_dir,
-        overwrite_output_dir=True,
-        evaluation_strategy="no",
+        output_dir=args.output_dir,
+        overwrite_output_dir=args.overwrite_output_dir,
+        evaluation_strategy=args.evaluation_strategy,
         per_device_train_batch_size=args.per_device_train_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
         num_train_epochs=args.num_train_epochs,
         max_steps=args.max_steps,
-        logging_steps=1000,
-        save_steps=1000,
-        save_total_limit=5,
+        lr_scheduler_type=args.lr_scheduler_type,
+        warmup_steps=args.warmup_steps,
+        logging_steps=args.logging_steps,
+        save_steps=args.save_steps,
+        save_total_limit=args.save_total_limit,
         no_cuda=args.no_cuda,
         fp16=args.fp16,
         half_precision_backend=args.half_precision_backend,
         deepspeed={
+            "gradient_accumulation_steps": "auto",
+            "gradient_clipping": "auto",
+            "steps_per_print": 200,
+            "train_batch_size": "auto",
+            "train_micro_batch_size_per_gpu": "auto",
+            "wall_clock_breakdown": False,
 
-        }
+            "optimizer": {
+                "type": "Adam",
+                "params": {
+                    "lr": "auto",
+                    "betas": "auto",
+                    "eps": "auto",
+                    "weight_decay": "auto"
+                }
+            },
+            "fp16": {
+                "enabled": "auto",
+                "loss_scale": 0,
+                "loss_scale_window": 1000,
+                "initial_scale_power": 16,
+                "hysteresis": 2,
+                "min_loss_scale": 1
+            },
+            "zero_optimization": {
+                "stage": 3,
+                "overlap_comm": True,
+                "contiguous_gradients": True,
+                "sub_group_size": 1e9,
+                "reduce_bucket_size": "auto",
+                "stage3_prefetch_bucket_size": "auto",
+                "stage3_param_persistence_threshold": "auto",
+                "stage3_max_live_parameters": 1e9,
+                "stage3_max_reuse_distance": 1e9,
+                "stage3_gather_16bit_weights_on_model_save": True
+            },
+            "scheduler": {
+                "type": "WarmupLR",
+                "params": {
+                    "warmup_min_lr": "auto",
+                    "warmup_max_lr": "auto",
+                    "warmup_num_steps": "auto"
+                }
+            }
+        },
+        report_to=args.report_to,
+        gradient_checkpointing=args.gradient_checkpointing,
     )
     trainer = Trainer(
         model=model,

@@ -152,9 +152,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   cd "${work_dir}" || exit 1;
 
   python3 1.train_model.py \
-  --corpus_file "${data_dir}/firefly-train-1.1M.jsonl" \
+  --train_file "${data_dir}/firefly-train-1.1M.jsonl" \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --serialization_dir "${serialization_dir}" \
+  --output_dir "${serialization_dir}" \
   --cache_dir "${cache_dir}" \
   --fp16
 
