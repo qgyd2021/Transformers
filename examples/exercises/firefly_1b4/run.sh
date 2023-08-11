@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # sh run.sh --stage -1 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh --final_model_name bloom-1b4-sft
+# sh run.sh --stage -1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-396m-sft
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-1b4-sft
 
@@ -55,8 +56,8 @@ cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
 
 data_dir="/data/tianxing/PycharmProjects/datasets/firefly_train_1_1m"
-pretrained_models_dir="${work_dir}/../../pretrained_models/huggingface/${pretrained_model_supplier}"
-final_model_dir="${work_dir}/../../trained_models/${final_model_name}";
+pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
+final_model_dir="${work_dir}/../../../trained_models/${final_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${cache_dir}"
@@ -65,7 +66,7 @@ mkdir -p "${data_dir}"
 mkdir -p "${pretrained_models_dir}"
 mkdir -p "${final_model_dir}"
 
-export PYTHONPATH="${work_dir}/../.."
+export PYTHONPATH="${work_dir}/../../.."
 
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
