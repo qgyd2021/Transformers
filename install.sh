@@ -10,7 +10,7 @@ stop_stage=5
 #python_version=3.8.10
 #python_bin=python3.8
 
-python_version=3.10.11
+python_version=3.10.12
 python_bin=python3.10
 
 # parse options

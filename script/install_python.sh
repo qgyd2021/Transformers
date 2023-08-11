@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# sh ./script/install_python.sh --system_version "centos" --python_version "3.10.11"
+
 # 参数:
 python_version="3.8.10";
 system_version="centos";
@@ -47,6 +49,7 @@ if [ ${system_version} = "centos" ]; then
   yum install -y make
 
   mkdir /data/dep
+  # wget -P /data/dep https://www.python.org/ftp/python/3.10.11/Python-3.10.11.tgz
   wget -P /data/dep https://www.python.org/ftp/python/${python_version}/Python-${python_version}.tgz
 
   cd /data/dep || exit 1;
