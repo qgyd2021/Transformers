@@ -8,11 +8,11 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-#python_version=3.8.10
-#python_bin=python3.8
+python_version=3.8.10
+python_bin=python3.8
 
-python_version=3.10.12
-python_bin=python3.10
+#python_version=3.10.12
+#python_bin=python3.10
 
 # parse options
 while true; do
@@ -53,6 +53,8 @@ if [ $system_version == "centos" ]; then
     $verbose && echo "stage 0: install python"
 
     cd "${work_dir}" || exit 1;
+
+    sh ./script/install_openssl.sh
     sh ./script/install_python.sh --system_version "centos" --python_version "${python_version}"
   fi
 
@@ -63,7 +65,7 @@ if [ $system_version == "centos" ]; then
 
     # /usr/local/python-3.8.10/bin/python3.8 -m pip install --upgrade pip
     # /usr/local/python-3.10.11/bin/python3.10 -m pip install --upgrade pip --trusted-host pypi.org
-    # /usr/local/python-3.10.11/bin/virtualenv Transformers
+    # /usr/local/python-3.8.10/bin/virtualenv Transformers
     /usr/local/python-${python_version}/bin/${python_bin} -m pip install --upgrade pip --trusted-host pypi.org
     mkdir -p /data/local/bin
     cd /data/local/bin || exit 1;
