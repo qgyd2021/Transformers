@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+# https://blog.csdn.net/bo_self_effacing/article/details/123628224
 
-# sh install.sh --system_version centos --stage 1 --stop_stage 1
+# sh install.sh --system_version centos --stage 0 --stop_stage 1
 
 system_version="centos";
 verbose=true;
@@ -60,6 +61,7 @@ if [ $system_version == "centos" ]; then
 
     cd "${work_dir}" || exit 1;
 
+    # /usr/local/python-3.8.10/bin/python3.8 -m pip install --upgrade pip
     # /usr/local/python-3.10.11/bin/python3.10 -m pip install --upgrade pip --trusted-host pypi.org
     # /usr/local/python-3.10.11/bin/virtualenv Transformers
     /usr/local/python-${python_version}/bin/${python_bin} -m pip install --upgrade pip --trusted-host pypi.org

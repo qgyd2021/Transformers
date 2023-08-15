@@ -60,11 +60,15 @@ if [ ${system_version} = "centos" ]; then
   ./configure --prefix=/usr/local/python-${python_version}
   make && make install
 
+  # /usr/local/python-3.10.11/bin/python3 -V
+  # /usr/local/python-3.10.11/bin/pip3 -V
   /usr/local/python-${python_version}/bin/python3 -V
   /usr/local/python-${python_version}/bin/pip3 -V
 
   rm -rf /usr/local/bin/python3
   rm -rf /usr/local/bin/pip3
+  # ln -s /usr/local/python-3.10.11/bin/python3 /usr/local/bin/python3
+  # ln -s /usr/local/python-3.10.11/bin/pip3 /usr/local/bin/pip3
   ln -s /usr/local/python-${python_version}/bin/python3 /usr/local/bin/python3
   ln -s /usr/local/python-${python_version}/bin/pip3 /usr/local/bin/pip3
 
