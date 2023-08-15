@@ -53,10 +53,12 @@ def get_args():
     parser.add_argument("--dataloader_num_workers", default=5, type=int)
     parser.add_argument("--disable_tqdm", action="store_false")
     parser.add_argument("--remove_unused_columns", action="store_false")
-    parser.add_argument("--deepspeed", default="ds_z3_config.json", type=str)
+    # parser.add_argument("--deepspeed", default="ds_z3_config.json", type=str)
+    parser.add_argument("--deepspeed", default=None, type=str)
     parser.add_argument("--optim", default="adamw_hf", type=str)
     parser.add_argument("--report_to", default="tensorboard", type=str)
     parser.add_argument("--gradient_checkpointing", action="store_true")
+    # parser.add_argument("--gradient_checkpointing", action="store_false")
 
     parser.add_argument("--truncate_longer_samples", action="store_true")
     parser.add_argument("--max_seq_length", default=512, type=int)
@@ -129,7 +131,7 @@ def main():
         no_cuda=args.no_cuda,
         fp16=args.fp16,
         half_precision_backend=args.half_precision_backend,
-        deepspeed=args.deepspeed,
+        # deepspeed=args.deepspeed,
         report_to=args.report_to,
         gradient_checkpointing=args.gradient_checkpointing,
     )

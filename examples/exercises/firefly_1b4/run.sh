@@ -153,6 +153,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: train model"
   cd "${work_dir}" || exit 1;
 
+  #
+
   python3 1.train_model.py \
   --train_file "${data_dir}/firefly-train-1.1M.jsonl" \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
