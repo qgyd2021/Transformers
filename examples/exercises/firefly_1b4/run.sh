@@ -61,6 +61,7 @@ work_dir="$(pwd)"
 file_dir="${work_dir}/file_dir"
 cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
+resume_from_checkpoint="${serialization_dir}/checkpoint-103000"
 
 data_dir="/data/tianxing/PycharmProjects/datasets/firefly_train_1_1m"
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
@@ -165,7 +166,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
   --output_dir "${serialization_dir}" \
   --cache_dir "${cache_dir}" \
-  --fp16
+  --fp16 \
+  --resume_from_checkpoint "${resume_from_checkpoint}"
 
 fi
 

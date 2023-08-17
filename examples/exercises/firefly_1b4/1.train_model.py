@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument("--learning_rate", default=1e-5, type=float)
     parser.add_argument("--weight_decay", default=0, type=float)
     parser.add_argument("--max_grad_norm", default=1.0, type=float)
-    parser.add_argument("--num_train_epochs", default=1.0, type=float)
+    parser.add_argument("--num_train_epochs", default=3.0, type=float)
     parser.add_argument("--max_steps", default=-1, type=int)
     parser.add_argument("--lr_scheduler_type", default="cosine", type=str)
     parser.add_argument("--warmup_ratio", default=0.0, type=float)
@@ -57,6 +57,7 @@ def get_args():
     parser.add_argument("--deepspeed", default=None, type=str)
     parser.add_argument("--optim", default="adamw_hf", type=str)
     parser.add_argument("--report_to", default="tensorboard", type=str)
+    parser.add_argument("--resume_from_checkpoint", default="file_dir/serialization_dir/checkpoint-103000", type=str)
     parser.add_argument("--gradient_checkpointing", action="store_true")
     # parser.add_argument("--gradient_checkpointing", action="store_false")
 
@@ -132,6 +133,7 @@ def main():
         half_precision_backend=args.half_precision_backend,
         # deepspeed=args.deepspeed,
         report_to=args.report_to,
+        resume_from_checkpoint=args.resume_from_checkpoint,
         gradient_checkpointing=args.gradient_checkpointing,
     )
     trainer = Trainer(
