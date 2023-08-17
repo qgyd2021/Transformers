@@ -5,8 +5,7 @@
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh
 
-# sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-396m-sft
-# sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-1b4-sft
+# sh run.sh --stage 1 --stop_stage 1 --system_version windows --pretrained_model_name bloom-1b4-zh
 
 # params
 system_version="windows";
@@ -61,7 +60,6 @@ work_dir="$(pwd)"
 file_dir="${work_dir}/file_dir"
 cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
-resume_from_checkpoint="${serialization_dir}/checkpoint-103000"
 
 data_dir="/data/tianxing/PycharmProjects/datasets/firefly_train_1_1m"
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
@@ -96,19 +94,20 @@ function search_best_ckpt() {
                awk -F'[-]' '{print$2}' | \
                sort -n | \
                awk 'END {print}')
-  target_epoch=$((last_epoch - patience))
-  target_dir=null
-  for epoch_idx in $(ls . | grep "checkpoint-*" | awk -F'[-]' '{print$2}' | sort -nr):
-  do
-    if [ "${epoch_idx}" -le "${target_epoch}" ]; then
-      target_dir="checkpoint-${epoch_idx}";
-      break;
-    fi
-  done
-  if [ "${target_dir}" == null ]; then
-    echo "no appropriate file found" && exit 1;
-    return 0;
+
+  target_dir=
+  if [ -n "${last_epoch}" ]; then
+    target_epoch=$((last_epoch - patience))
+
+    for epoch_idx in $(ls . | grep "checkpoint-*" | awk -F'[-]' '{print$2}' | sort -nr):
+    do
+      if [ "${epoch_idx}" -le "${target_epoch}" ]; then
+        target_dir="checkpoint-${epoch_idx}";
+        break;
+      fi
+    done
   fi
+
   echo "${target_dir}"
 }
 
@@ -158,8 +157,13 @@ fi
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: train model"
   cd "${work_dir}" || exit 1;
+  target_dir=$(search_best_ckpt "${patience}");
 
-  #
+  resume_from_checkpoint=
+  if [ -n "${target_dir}" ]; then
+  resume_from_checkpoint="${serialization_dir}/${target_dir}"
+    echo "resume_from_checkpoint: ${resume_from_checkpoint}"
+  fi
 
   python3 1.train_model.py \
   --train_file "${data_dir}/firefly-train-1.1M.jsonl" \
@@ -167,7 +171,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   --output_dir "${serialization_dir}" \
   --cache_dir "${cache_dir}" \
   --fp16 \
-  --resume_from_checkpoint "${resume_from_checkpoint}"
+  ${resume_from_checkpoint:+--resume_from_checkpoint $resume_from_checkpoint}
 
 fi
 
