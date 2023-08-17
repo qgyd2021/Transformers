@@ -73,10 +73,10 @@ export PYTHONPATH="${work_dir}/../../.."
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
 elif [ $system_version == "centos" ]; then
-  conda activate Transformers
+  # conda activate Transformers
   alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 elif [ $system_version == "ubuntu" ]; then
-  conda activate Transformers
+  # conda activate Transformers
   alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 fi
 
@@ -167,7 +167,7 @@ fi
 
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: collect files"
-  target_dir=$(search_best_ckpt version_0 "${patience}");
+  target_dir=$(search_best_ckpt "${patience}");
 
   cd "${work_dir}" || exit 1;
 

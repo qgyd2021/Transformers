@@ -95,7 +95,6 @@ def main():
             # padding='max_length',
             max_length=args.max_seq_length,
             return_special_tokens_mask=True
-
         )
         return result
 
