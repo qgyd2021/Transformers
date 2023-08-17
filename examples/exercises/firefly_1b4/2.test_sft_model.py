@@ -5,6 +5,8 @@ import argparse
 import torch
 from transformers import BloomTokenizerFast, BloomForCausalLM
 
+from project_settings import project_path
+
 
 def get_args():
     """
@@ -16,7 +18,8 @@ def get_args():
     parser.add_argument(
         '--trained_model_path',
         # default='YeungNLP/bloom-1b4-zh',
-        default='D:/programmer/nlp_pretrained_model/bloom-1b4-zh',
+        # default='D:/programmer/nlp_pretrained_model/bloom-1b4-zh',
+        default=(project_path / "trained_models/bloom-1b4-zh").as_posix(),
         type=str,
     )
     parser.add_argument('--device', default='auto', type=str)

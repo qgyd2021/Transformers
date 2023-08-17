@@ -3,6 +3,7 @@
 # sh run.sh --stage -1 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh --final_model_name bloom-1b4-sft
 # sh run.sh --stage -1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
+# sh run.sh --stage 2 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh
 
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-396m-sft
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos --final_model_name bloom-1b4-sft
@@ -19,6 +20,10 @@ pretrained_model_supplier=YeungNLP
 pretrained_model_name=bloom-1b4-zh
 
 final_model_name=final_model_name
+
+
+patience=0
+
 
 # parse options
 while true; do
@@ -174,7 +179,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cp "${serialization_dir}/${target_dir}/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
 
   cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/generation_config.json" "${final_model_dir}/generation_config.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer_config.json" "${final_model_dir}/tokenizer_config.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer.json" "${final_model_dir}/tokenizer.json"
