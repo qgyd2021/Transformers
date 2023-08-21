@@ -18,6 +18,24 @@ def get_args():
     python3 2.test_sft_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/bloom-396m-sft
     python3 2.test_sft_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/bloom-1b4-sft
 
+    参考链接:
+    https://huggingface.co/YeungNLP/firefly-bloom-1b4
+
+    Example:
+        将下面句子翻译成现代文：\n石中央又生一树，高百余尺，条干偃阴为五色，翠叶如盘，花径尺余，色深碧，蕊深红，异香成烟，著物霏霏。
+
+        实体识别: 1949年10月1日，人们在北京天安门广场参加开国大典。
+
+        把这句话翻译成英文: 1949年10月1日，人们在北京天安门广场参加开国大典。
+
+        晚上睡不着该怎么办. 请给点详细的介绍.
+
+        将下面的句子翻译成文言文：结婚率下降, 离婚率暴增, 生育率下降, 人民焦虑迷茫, 到底是谁的错.
+
+        对联：厌烟沿檐烟燕眼. (污雾舞坞寤梧芜).
+
+        写一首咏雪的古诗, 标题为 "沁园春, 雪".
+
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
