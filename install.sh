@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # https://blog.csdn.net/bo_self_effacing/article/details/123628224
 
-# sh install.sh --system_version centos --stage 0 --stop_stage 1
+# sh install.sh --system_version centos --stage 1 --stop_stage 1
 
 system_version="centos";
 verbose=true;

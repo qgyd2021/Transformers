@@ -56,16 +56,16 @@ mkdir -p "${data_dir}"
 
 export PYTHONPATH="${work_dir}/../../.."
 
+
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
 elif [ $system_version == "centos" ]; then
-  # conda activate Transformers
-  alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
+  source /data/local/bin/Transformers/bin/activate
+  alias python3='/data/local/bin/Transformers/bin/python3'
 elif [ $system_version == "ubuntu" ]; then
-  # conda activate Transformers
-  alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
+  source /data/local/bin/Transformers/bin/activate
+  alias python3='/data/local/bin/Transformers/bin/python3'
 fi
-
 
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
