@@ -113,3 +113,13 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
 
   done
 fi
+
+
+if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
+  $verbose && echo "stage 0: train model"
+
+  python3 1.train_model.py
+
+fi
+
+
