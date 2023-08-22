@@ -131,7 +131,7 @@ def main():
         model=model,
         args=training_args,
         data_collator=data_collator,
-        train_dataset=dataset_dict["train"],
+        train_dataset=dataset_dict,
     )
     trainer.train()
     return
