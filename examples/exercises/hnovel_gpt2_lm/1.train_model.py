@@ -31,7 +31,7 @@ def get_args():
     )
 
     parser.add_argument("--dataset_path", default="qgyd2021/HNovel", type=str)
-    parser.add_argument("--dataset_name", default="test", type=str)
+    parser.add_argument("--dataset_name", default="all", type=str)
     parser.add_argument("--dataset_split", default="train", type=str)
 
     parser.add_argument(
