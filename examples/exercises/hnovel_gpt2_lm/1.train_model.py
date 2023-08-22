@@ -45,7 +45,7 @@ def get_args():
     parser.add_argument("--batch_size", default=4, type=int)
 
     parser.add_argument("--cache_dir", default="file_dir/cache", type=str)
-    parser.add_argument("--output_dir", default=None, type=str)
+    parser.add_argument("--output_dir", default="output_dir", type=str)
 
     args = parser.parse_args()
     return args
@@ -57,9 +57,10 @@ def main():
     dataset_dict = load_dataset(
         path=args.dataset_path,
         name=args.dataset_name,
-        split=args.dataset_split,
+        # split=args.dataset_split,
         cache_dir=args.dataset_cache_dir,
     )
+    print(dataset_dict)
 
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_dir)
     model = GPT2LMHeadModel.from_pretrained(args.pretrained_model_dir)
@@ -129,7 +130,7 @@ def main():
         model=model,
         args=training_args,
         data_collator=data_collator,
-        train_dataset=dataset_dict,
+        train_dataset=dataset_dict["train"],
     )
     trainer.train()
     return
