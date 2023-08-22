@@ -97,20 +97,20 @@ def main():
             encode_with_truncation,
             batched=True,
         )
-        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
         )
-        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
         dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
             desc="Grouping texts in chunks of {}".format(args.max_length),
         )
-        dataset_dict.set_format("torch")
+        # dataset_dict.set_format("torch")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
