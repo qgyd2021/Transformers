@@ -96,22 +96,14 @@ def main():
         dataset_dict = dataset_dict.map(
             encode_with_truncation,
             batched=True,
-            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
-            # cache_file_names={
-            #     "train": os.path.join(args.cache_dir, "train_tokenized.cache")
-            # }
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
-            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
-            # cache_file_names={
-            #     "train": os.path.join(args.cache_dir, "train_tokenized.cache")
-            # }
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
@@ -119,11 +111,7 @@ def main():
             group_texts,
             batched=True,
             desc="Grouping texts in chunks of {}".format(args.max_length),
-            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
-            # cache_file_names={
-            #     "train": os.path.join(args.cache_dir, "train.cache")
-            # },
         )
         dataset_dict.set_format("torch")
 
