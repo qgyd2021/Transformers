@@ -18,6 +18,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 from datasets import Audio, load_dataset
+from speechbrain.pretrained import EncoderClassifier
 from transformers import SpeechT5Processor
 
 import project_settings as settings
