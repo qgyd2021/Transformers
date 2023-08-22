@@ -55,7 +55,8 @@ def main():
     args = get_args()
 
     dataset_dict = load_dataset(
-        args.dataset_path,
+        path=args.dataset_path,
+        name=args.dataset_name,
         split=args.dataset_split,
         cache_dir=args.dataset_cache_dir,
     )
