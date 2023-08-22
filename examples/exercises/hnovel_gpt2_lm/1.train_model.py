@@ -95,6 +95,7 @@ def main():
         dataset_dict = dataset_dict.map(
             encode_with_truncation,
             batched=True,
+            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
@@ -102,6 +103,7 @@ def main():
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
+            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
@@ -109,6 +111,7 @@ def main():
         dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
+            keep_in_memory=False,
             num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
         )
         dataset_dict.set_format("torch")
