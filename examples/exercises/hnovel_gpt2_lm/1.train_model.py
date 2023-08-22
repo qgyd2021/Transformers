@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import platform
 
-from datasets import Dataset, DatasetDict, load_dataset
+from datasets import Dataset, DatasetDict, IterableDataset, load_dataset
 import torch
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
@@ -97,20 +97,16 @@ def main():
             encode_with_truncation,
             batched=True,
         )
-        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
         )
-        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
         dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
-            desc="Grouping texts in chunks of {}".format(args.max_length),
         )
-        # dataset_dict.set_format("torch")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
@@ -127,25 +123,9 @@ def main():
         save_steps=1000,
         fp16=True if torch.cuda.is_available() else False,
         local_rank=-1,
-        # load_best_model_at_end=True,
         save_total_limit=5,
         report_to="tensorboard"
     )
-
-    training_info = """
-    TRAINING_INFO:    
- 
-    n_gpu: {n_gpu}
-    parallel_mode: {parallel_mode}
-    world_size: {world_size}
-    device: {device}
-    """.format(
-        n_gpu=training_args.n_gpu,
-        parallel_mode=training_args.parallel_mode,
-        world_size=training_args.world_size,
-        device=training_args.device,
-    )
-    print(training_info)
 
     trainer = Trainer(
         model=model,
