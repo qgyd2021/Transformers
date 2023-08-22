@@ -39,7 +39,6 @@ def get_args():
         default=(project_path / "hub_datasets").as_posix(),
         type=str
     )
-    parser.add_argument("--dataset_streaming", action="store_false")
 
     parser.add_argument("--truncate_longer_samples", action="store_true")
     parser.add_argument("--max_length", default=1024, type=int)
@@ -60,7 +59,6 @@ def main():
         name=args.dataset_name,
         split=args.dataset_split,
         cache_dir=args.dataset_cache_dir,
-        streaming=args.dataset_streaming,
     )
 
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_dir)
