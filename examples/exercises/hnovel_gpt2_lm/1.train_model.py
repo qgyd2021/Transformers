@@ -126,7 +126,8 @@ def main():
             encode_with_truncation,
             batched=True,
             keep_in_memory=False,
-            num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            num_proc=None,
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
@@ -134,7 +135,8 @@ def main():
             encode_without_truncation,
             batched=True,
             keep_in_memory=False,
-            num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            num_proc=None,
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
@@ -142,7 +144,8 @@ def main():
             group_texts,
             batched=True,
             keep_in_memory=False,
-            num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
+            num_proc=None,
         )
         dataset_dict.set_format("torch")
 
