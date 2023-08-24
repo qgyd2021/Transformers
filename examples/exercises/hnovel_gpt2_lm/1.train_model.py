@@ -44,7 +44,7 @@ def get_args():
     parser.add_argument("--output_dir", default="serialization_dir", type=str)
     parser.add_argument("--overwrite_output_dir", action="store_true")
     parser.add_argument("--evaluation_strategy", default="no", choices=["no", "steps", "epoch"], type=str)
-    parser.add_argument("--per_device_train_batch_size", default=4, type=int)
+    parser.add_argument("--per_device_train_batch_size", default=8, type=int)
     parser.add_argument("--gradient_accumulation_steps", default=4, type=int)
     parser.add_argument("--learning_rate", default=1e-5, type=float)
     parser.add_argument("--weight_decay", default=0, type=float)
@@ -73,8 +73,8 @@ def get_args():
     parser.add_argument("--gradient_checkpointing", action="store_true")
     # parser.add_argument("--gradient_checkpointing", action="store_false")
 
-    # parser.add_argument("--truncate_longer_samples", action="store_true")
-    parser.add_argument("--truncate_longer_samples", action="store_false")
+    parser.add_argument("--truncate_longer_samples", action="store_true")
+    # parser.add_argument("--truncate_longer_samples", action="store_false")
     parser.add_argument("--max_seq_length", default=1024, type=int)
 
     args = parser.parse_args()

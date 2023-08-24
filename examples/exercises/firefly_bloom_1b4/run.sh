@@ -171,7 +171,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   --output_dir "${serialization_dir}" \
   --cache_dir "${cache_dir}" \
   --fp16 \
-  ${resume_from_checkpoint:+--resume_from_checkpoint $resume_from_checkpoint}
+  ${resume_from_checkpoint:+--resume_from_checkpoint $resume_from_checkpoint} \
 
 fi
 
