@@ -73,7 +73,8 @@ def get_args():
     parser.add_argument("--gradient_checkpointing", action="store_true")
     # parser.add_argument("--gradient_checkpointing", action="store_false")
 
-    parser.add_argument("--truncate_longer_samples", action="store_true")
+    # parser.add_argument("--truncate_longer_samples", action="store_true")
+    parser.add_argument("--truncate_longer_samples", action="store_false")
     parser.add_argument("--max_seq_length", default=1024, type=int)
 
     args = parser.parse_args()
