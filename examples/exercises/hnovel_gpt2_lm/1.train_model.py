@@ -3,6 +3,7 @@
 """
 参考链接:
 https://www.thepythoncode.com/article/pretraining-bert-huggingface-transformers-in-python
+https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_clm.py
 
 """
 import argparse
