@@ -5,6 +5,10 @@ https://github.com/TimDettmers/bitsandbytes/blob/main/examples/int8_inference_hu
 """
 import argparse
 import os
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../'))
 
 from project_settings import project_path
 
