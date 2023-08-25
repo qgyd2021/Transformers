@@ -4,6 +4,13 @@
 https://github.com/TimDettmers/bitsandbytes/blob/main/examples/int8_inference_huggingface.py
 """
 import argparse
+import os
+
+from project_settings import project_path
+
+hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
+
+os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
