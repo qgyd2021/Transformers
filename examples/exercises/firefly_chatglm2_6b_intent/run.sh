@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# sh run.sh --stage -1 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh --final_model_name bloom-1b4-sft
-# sh run.sh --stage -1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
-# sh run.sh --stage 1 --stop_stage 1 --system_version centos --pretrained_model_name bloom-1b4-zh
-# sh run.sh --stage 2 --stop_stage 2 --system_version centos --pretrained_model_name bloom-1b4-zh --final_model_name bloom-1b4-sft
+# sh run.sh --stage -1 --stop_stage -1 --system_version centos
+# sh run.sh --stage -1 --stop_stage 1 --system_version centos
+# sh run.sh --stage 1 --stop_stage 1 --system_version centos
+# sh run.sh --stage 2 --stop_stage 2 --system_version centos
 
 # sh run.sh --stage 1 --stop_stage 1 --system_version windows --pretrained_model_name bloom-1b4-zh
 
