@@ -28,10 +28,10 @@ def get_args():
 
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        # default='YeungNLP/bloom-1b4-zh',
-        default="D:/programmer/nlp_pretrained_model/bloom-1b7",
-        type=str,
+        default="YeungNLP/firefly-chatglm2-6b",
+        type=str
     )
+
     parser.add_argument("--cache_dir", default="cache_dir", type=str)
 
     parser.add_argument("--output_dir", default="serialization_dir", type=str)
@@ -98,6 +98,9 @@ def main():
     train_dataset.read(args.train_subset)
     valid_dataset = ChatGLM2SFTDataset(tokenizer=tokenizer, max_seq_length=args.max_seq_length)
     valid_dataset.read(args.valid_subset)
+
+    for sample in valid_dataset:
+        print(sample)
 
     return
 
