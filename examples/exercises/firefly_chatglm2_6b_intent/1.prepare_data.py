@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import argparse
+import json
 import os
+import random
 import sys
 
 pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, '../../../'))
 
 from datasets import Dataset, DatasetDict, IterableDataset, load_dataset
+from tqdm import tqdm
 
 from project_settings import project_path
 
@@ -23,6 +26,8 @@ def get_args():
         default=(project_path / "hub_datasets").as_posix(),
         type=str
     )
+    parser.add_argument("--train_subset", default="train.jsonl", type=str)
+    parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
     args = parser.parse_args()
     return args
 
@@ -39,8 +44,33 @@ def main():
     print(dataset_dict)
 
     train_dataset = dataset_dict["train"]
-    for sample in train_dataset:
-        print(sample)
+
+    with open(args.train_subset, "w", encoding="utf-8") as ftrain, \
+        open(args.valid_subset, "w", encoding="utf-8") as fvalid:
+        for sample in tqdm(train_dataset):
+            source = sample["source"]
+            text = sample["text"]
+            label0 = sample["label0"]
+            label1 = sample["label1"]
+            selected = sample["selected"]
+            checked = sample["checked"]
+            prompt = sample["prompt"]
+
+            if source in ("download", ):
+                continue
+            if selected != 1:
+                continue
+
+            row = {
+                "input": prompt,
+                "target": label1
+            }
+            row = json.dumps(row, ensure_ascii=False)
+
+            if random.random() < 0.95:
+                ftrain.write("{}\n".format(row))
+            else:
+                fvalid.write("{}\n".format(row))
 
     return
 
