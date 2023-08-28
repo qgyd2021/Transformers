@@ -198,7 +198,7 @@ def main():
 
     # casts all the non int8 modules to full precision (fp32) for stability
     model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
-    print(f"memory footprint of model: {model.get_memory_footprint()/(1024*1024*1024)} GB")
+    print(f"memory footprint of model: {model.get_memory_footprint() / (1024*1024*1024)} GB")
 
     # 找到所有需要插入adapter的全连接层
     target_modules = find_all_linear_names(model)

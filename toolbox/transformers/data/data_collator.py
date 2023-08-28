@@ -11,6 +11,7 @@ class SFTDataCollator(object):
         self.pad_token_id = tokenizer.pad_token_id
 
     def __call__(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+        print(batch)
         # 找出batch中的最大长度.
         lengths = [len(x['input_ids']) for x in batch]
         # 取出batch中的最大长度, 如果超过max_seq_length, 则取max_seq_length.
@@ -23,6 +24,7 @@ class SFTDataCollator(object):
             input_ids = x["input_ids"]
             attention_mask = x["attention_mask"]
             target_mask = x["target_mask"]
+
             padding_len = batch_max_len - len(input_ids)
             # padding
             input_ids = input_ids + [self.pad_token_id] * padding_len
