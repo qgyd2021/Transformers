@@ -62,8 +62,14 @@ def main():
                 continue
 
             row = {
-                "input": prompt,
-                "target": label1
+                "conversation_id": "",
+                "category": "",
+                "conversation": [
+                    {
+                        "human": prompt,
+                        "assistant": label1
+                    }
+                ]
             }
             row = json.dumps(row, ensure_ascii=False)
 
