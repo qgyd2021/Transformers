@@ -38,6 +38,10 @@ def main():
     )
     print(dataset_dict)
 
+    train_dataset = dataset_dict["train"]
+    for sample in train_dataset:
+        print(sample)
+
     return
 
 
