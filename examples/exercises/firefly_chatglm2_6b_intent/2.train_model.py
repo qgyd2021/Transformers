@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import argparse
+import os
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../../'))
+
 from dataclasses import dataclass, field
 from typing import Optional
 

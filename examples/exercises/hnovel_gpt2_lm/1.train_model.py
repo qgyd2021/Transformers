@@ -115,7 +115,7 @@ def main():
         if total_length >= args.max_seq_length:
             total_length = (total_length // args.max_seq_length) * args.max_seq_length
         else:
-            raise AssertionError("total_length: {} < args.max_seq_length: {}".format(args.max_seq_length, args.max_seq_length))
+            raise AssertionError("total_length: {} < args.max_seq_length: {}".format(total_length, args.max_seq_length))
         result = {
             k: [t[i: i + args.max_seq_length] for i in range(0, total_length, args.max_seq_length)]
             for k, t in concatenated_examples.items()

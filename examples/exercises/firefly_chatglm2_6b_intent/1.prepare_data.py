@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import argparse
+import os
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../../'))
 
 from datasets import Dataset, DatasetDict, IterableDataset, load_dataset
 
@@ -32,6 +37,7 @@ def main():
         cache_dir=args.dataset_cache_dir,
     )
     print(dataset_dict)
+
     return
 
 

@@ -2,7 +2,6 @@
 
 # https://www.5axxw.com/questions/simple/umiecs
 
-
 # params:
 system_version="centos";
 

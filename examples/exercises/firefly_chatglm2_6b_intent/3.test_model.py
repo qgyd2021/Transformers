@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import argparse
+import os
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../../'))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -10,6 +15,10 @@ import torch
 
 
 def get_args():
+    """
+    python3 3.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--pretrained_model_name_or_path",

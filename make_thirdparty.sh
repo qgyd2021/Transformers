@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# sh make_thirdparty.sh --stage 0 --stop_stage 1
+# sh make_thirdparty.sh --stage 0 --stop_stage 0
 
 
 verbose=true;
@@ -50,7 +50,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 
   wget https://github.com/huggingface/transformers/archive/refs/tags/v4.30.2.zip
   unzip v4.30.2.zip
-  rm -rf v4.30.2.zip
+#  rm -rf v4.30.2.zip
 
 fi
 
