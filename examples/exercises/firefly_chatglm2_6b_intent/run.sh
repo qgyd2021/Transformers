@@ -125,3 +125,22 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   fi
 
 fi
+
+
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+  $verbose && echo "stage 1: prepare data"
+  cd "${work_dir}" || exit 1;
+
+  python3 1.prepare_data.py
+
+fi
+
+
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+  $verbose && echo "stage 2: train model"
+  cd "${work_dir}" || exit 1;
+
+  python3 2.train_model.py
+
+fi
