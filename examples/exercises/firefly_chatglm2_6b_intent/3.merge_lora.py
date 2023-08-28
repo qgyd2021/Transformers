@@ -14,7 +14,7 @@ def get_args():
     """
     python3 3.merge_lora.py \
     --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b \
-    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/firefly_chatglm2_6b_intent/serialization_dir/final
+    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/firefly_chatglm2_6b_intent/serialization_dir/final \
     --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
 
     """
@@ -39,7 +39,10 @@ def get_args():
 def main():
     args = get_args()
 
-    config = AutoConfig.from_pretrained(args.pretrained_model_name_or_path)
+    config = AutoConfig.from_pretrained(
+        args.pretrained_model_name_or_path,
+        trust_remote_code=True,
+    )
     tokenizer = AutoTokenizer.from_pretrained(
         args.pretrained_model_name_or_path,
         trust_remote_code=True,

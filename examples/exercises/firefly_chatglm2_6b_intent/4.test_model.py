@@ -18,6 +18,8 @@ def get_args():
     """
     python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
 
+    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
+
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(

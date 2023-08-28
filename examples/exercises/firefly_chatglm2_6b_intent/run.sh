@@ -16,7 +16,7 @@ stop_stage=5
 pretrained_model_supplier=YeungNLP
 pretrained_model_name=firefly-chatglm2-6b
 
-final_model_name=final_model_name
+final_model_name=firefly_chatglm2_6b_intent
 
 patience=0
 
@@ -142,5 +142,18 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
   python3 2.train_model.py \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --output_dir "${serialization_dir}"
+
+fi
+
+
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+  $verbose && echo "stage 3: merge lora"
+  cd "${work_dir}" || exit 1;
+
+  python3 3.merge_lora.py \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --adapter_name_or_path "${serialization_dir}/final" \
+  --save_directory "${final_model_dir}"
 
 fi
