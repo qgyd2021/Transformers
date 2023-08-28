@@ -16,7 +16,7 @@ import torch
 
 def get_args():
     """
-    python3 3.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
+    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
 
     """
     parser = argparse.ArgumentParser()
