@@ -127,7 +127,6 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 fi
 
 
-
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: prepare data"
   cd "${work_dir}" || exit 1;
@@ -141,6 +140,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-  python3 2.train_model.py
+  python3 2.train_model.py \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
 
 fi
