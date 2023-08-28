@@ -176,7 +176,7 @@ def main():
 
     # pretrained model
     model = AutoModelForCausalLM.from_pretrained(
-        args.model_name_or_path,
+        args.pretrained_model_name_or_path,
         device_map={"": 0},
         load_in_4bit=True,
         torch_dtype=torch.float16,
