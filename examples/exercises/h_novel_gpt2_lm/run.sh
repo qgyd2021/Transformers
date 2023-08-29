@@ -2,7 +2,7 @@
 
 # nohup sh run.sh --stage 0 --stop_stage 0 --system_version centos &
 # sh run.sh --stage 0 --stop_stage 1 --system_version windows
-# sh run.sh --stage 1 --stop_stage 1
+# sh run.sh --stage 0 --stop_stage 0 --system_version centos
 # sh run.sh --stage -1 --stop_stage 1
 
 # params
@@ -64,11 +64,11 @@ export PYTHONPATH="${work_dir}/../../.."
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
 elif [ $system_version == "centos" ]; then
-  source /data/local/bin/Transformers/bin/activate
-  alias python3='/data/local/bin/Transformers/bin/python3'
+  # conda activate Transformers
+  alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 elif [ $system_version == "ubuntu" ]; then
-  source /data/local/bin/Transformers/bin/activate
-  alias python3='/data/local/bin/Transformers/bin/python3'
+  # conda activate Transformers
+  alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 fi
 
 
