@@ -26,21 +26,13 @@ from project_settings import project_path
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--pretrained_model_dir",
+        "--pretrained_model_name_or_path",
         default=(project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix(),
         type=str
     )
 
-    parser.add_argument("--dataset_path", default="qgyd2021/HNovel", type=str)
-    parser.add_argument("--dataset_name", default="all", type=str)
-    parser.add_argument("--dataset_split", default="train", type=str)
-    parser.add_argument(
-        "--dataset_cache_dir",
-        default=(project_path / "hub_datasets").as_posix(),
-        type=str
-    )
-
-    parser.add_argument("--cache_dir", default="file_dir/cache", type=str)
+    parser.add_argument("--train_subset", default="train.jsonl", type=str)
+    parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
 
     parser.add_argument("--output_dir", default="serialization_dir", type=str)
     parser.add_argument("--overwrite_output_dir", action="store_true")
@@ -85,16 +77,22 @@ def get_args():
 def main():
     args = get_args()
 
-    dataset_dict = load_dataset(
-        path=args.dataset_path,
-        name=args.dataset_name,
-        # split=args.dataset_split,
-        cache_dir=args.dataset_cache_dir,
-    )
+    # dataset
+    dataset_dict = DatasetDict()
+    train_data_files = [args.train_subset]
+    dataset_dict["train"] = load_dataset(
+        path="json", data_files=[str(file) for file in train_data_files]
+    )["train"]
+    valid_data_files = [args.valid_subset]
+    dataset_dict["valid"] = load_dataset(
+        path="json", data_files=[str(file) for file in valid_data_files]
+    )["train"]
+
     print(dataset_dict)
 
-    tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_dir)
-    model = GPT2LMHeadModel.from_pretrained(args.pretrained_model_dir)
+    # model
+    tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_name_or_path)
+    model = GPT2LMHeadModel.from_pretrained(args.pretrained_model_name_or_path)
 
     def encode_with_truncation(examples):
         outputs = tokenizer.__call__(examples['text'],

@@ -4,6 +4,7 @@
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos
+# sh run.sh --stage 3 --stop_stage 3 --system_version centos
 
 # sh run.sh --stage 1 --stop_stage 1 --system_version windows --pretrained_model_name bloom-1b4-zh
 
@@ -18,8 +19,8 @@ pretrained_model_name=firefly-chatglm2-6b
 
 final_model_name=firefly_chatglm2_6b_intent
 
-patience=0
-
+train_subset=train.jsonl
+valid_subset=valid.jsonl
 
 # parse options
 while true; do
@@ -110,7 +111,7 @@ if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
   $verbose && echo "stage -1: download data"
   cd "${work_dir}" || exit 1;
 
-  python3 1.prepare_data.py
+  #python3 1.prepare_data.py
 
 fi
 
@@ -131,7 +132,9 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: prepare data"
   cd "${work_dir}" || exit 1;
 
-  python3 1.prepare_data.py
+  python3 1.prepare_data.py \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
 
 fi
 
@@ -141,6 +144,8 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cd "${work_dir}" || exit 1;
 
   python3 2.train_model.py \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
   --output_dir "${serialization_dir}"
 

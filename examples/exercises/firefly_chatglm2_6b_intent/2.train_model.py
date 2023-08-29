@@ -42,8 +42,6 @@ def get_args():
         type=str
     )
 
-    parser.add_argument("--cache_dir", default="cache_dir", type=str)
-
     parser.add_argument("--output_dir", default="serialization_dir", type=str)
     parser.add_argument("--overwrite_output_dir", action="store_true")
     parser.add_argument("--evaluation_strategy", default="no", choices=["no", "steps", "epoch"], type=str)
@@ -148,7 +146,6 @@ def main():
     args = get_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
-    os.makedirs(args.cache_dir, exist_ok=True)
 
     # training_args
     training_args = TrainingArguments(

@@ -13,6 +13,10 @@ stop_stage=5
 
 pretrained_model_name=gpt2-chinese-cluecorpussmall
 
+train_subset=train.jsonl
+valid_subset=valid.jsonl
+
+
 # parse options
 while true; do
   [ -z "${1:-}" ] && break;  # break if there are no arguments
@@ -46,14 +50,12 @@ $verbose && echo "system_version: ${system_version}"
 
 work_dir="$(pwd)"
 file_dir="$(pwd)/file_dir"
-checkpoint_dir="${file_dir}/checkpoint_dir"
 pretrained_models_dir="${work_dir}/../../../pretrained_models";
-dataset_cache_dir="${file_dir}/cache_dir"
+serialization_dir="${file_dir}/serialization_dir"
 
 mkdir -p "${file_dir}"
-mkdir -p "${checkpoint_dir}"
 mkdir -p "${pretrained_models_dir}"
-mkdir -p "${dataset_cache_dir}"
+mkdir -p "${serialization_dir}"
 
 
 export PYTHONPATH="${work_dir}/../../.."
@@ -98,12 +100,24 @@ fi
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-  $verbose && echo "stage 1: fine tune"
+  $verbose && echo "stage 0: prepare data"
   cd "${work_dir}" || exit 1;
 
-  python3 1.train_model.py \
-  --pretrained_model_dir "${pretrained_model_dir}" \
-  --cache_dir "${dataset_cache_dir}" \
-  --output_dir "${checkpoint_dir}" \
+  python3 1.prepare_data.py \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
+
+fi
+
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+  $verbose && echo "stage 1: train model"
+  cd "${work_dir}" || exit 1;
+
+  python3 2.train_model.py \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --output_dir "${serialization_dir}"
 
 fi
