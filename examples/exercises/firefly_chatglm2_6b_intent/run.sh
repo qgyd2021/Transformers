@@ -9,6 +9,9 @@
 
 # sh run.sh --stage 1 --stop_stage 1 --system_version windows --pretrained_model_name bloom-1b4-zh
 
+# bitsandbytes
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
 # params
 system_version="windows";
 verbose=true;
