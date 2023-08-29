@@ -62,7 +62,7 @@ def main():
             row = json.loads(row)
             conversation = row["conversation"]
             for x in conversation:
-                print(x)
+                # print(x)
                 human = x["human"]
                 assistant = x["assistant"]
                 text = "[Round 1]\n\n问：{}\n\n答：".format(human)
