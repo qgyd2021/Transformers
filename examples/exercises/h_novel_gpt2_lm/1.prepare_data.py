@@ -48,7 +48,7 @@ def main():
     with open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
         for sample in tqdm(train_dataset):
-            print(sample)
+            # print(sample)
 
             source = sample["source"]
             idx = sample["idx"]

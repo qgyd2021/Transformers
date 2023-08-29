@@ -9,6 +9,8 @@ sys.path.append(os.path.join(pwd, '../../../'))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+
+from project_settings import project_path
 """
 单轮对话，不具有对话历史的记忆功能
 """
@@ -24,7 +26,8 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        default="YeungNLP/firefly-chatglm2-6b",
+        # default="YeungNLP/firefly-chatglm2-6b",
+        default=(project_path / "trained_models/firefly_chatglm2_6b_intent").as_posix(),
         type=str
     )
     parser.add_argument("--max_new_tokens", default=512, type=int)
@@ -45,7 +48,8 @@ def main():
         trust_remote_code=True,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
-        device_map="auto"
+        device_map="auto",
+        offload_folder="./offload"
     ).to(args.device).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(
