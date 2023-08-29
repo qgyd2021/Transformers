@@ -64,6 +64,7 @@ def main():
             row = {
                 "conversation_id": "",
                 "category": "",
+                "text": text,
                 "conversation": [
                     {
                         "human": prompt,

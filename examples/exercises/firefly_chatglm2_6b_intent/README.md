@@ -7,3 +7,8 @@
 https://github.com/yangjianxin1/Firefly/blob/master/train_args/qlora/chatglm2-6b-sft-qlora.json
 
 ```
+
+```text
+模型在 windows 上无法运行. 
+
+```

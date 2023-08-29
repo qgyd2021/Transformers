@@ -162,3 +162,16 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
   --save_directory "${final_model_dir}"
 
 fi
+
+
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+  $verbose && echo "stage 4: evaluation"
+  cd "${work_dir}" || exit 1;
+
+  python3 5.evaluation.py \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --output_file "${file_dir}/evaluation.xlsx"
+
+fi
