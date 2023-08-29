@@ -112,8 +112,7 @@ def main():
         total_length = len(concatenated_examples[list(examples.keys())[0]])
         if total_length >= args.max_seq_length:
             total_length = (total_length // args.max_seq_length) * args.max_seq_length
-        else:
-            raise AssertionError("total_length: {} < args.max_seq_length: {}".format(total_length, args.max_seq_length))
+
         result = {
             k: [t[i: i + args.max_seq_length] for i in range(0, total_length, args.max_seq_length)]
             for k, t in concatenated_examples.items()
@@ -124,6 +123,7 @@ def main():
         dataset_dict = dataset_dict.map(
             encode_with_truncation,
             batched=True,
+            drop_last_batch=True,
             keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
             num_proc=None,
@@ -133,6 +133,7 @@ def main():
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
+            drop_last_batch=True,
             keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
             num_proc=None,
@@ -142,6 +143,7 @@ def main():
         dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
+            drop_last_batch=True,
             keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
             num_proc=None,

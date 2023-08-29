@@ -34,7 +34,7 @@ def get_args():
     parser.add_argument("--top_p", default=0.9, type=float)
     parser.add_argument("--temperature", default=0.35, type=float)
     parser.add_argument("--repetition_penalty", default=1.0, type=float)
-    parser.add_argument('--device', default="cuda", type=str)
+    parser.add_argument('--device', default="cuda" if torch.cuda.is_available() else "cpu", type=str)
 
     args = parser.parse_args()
     return args
