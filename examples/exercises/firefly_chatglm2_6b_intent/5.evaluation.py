@@ -11,6 +11,7 @@ sys.path.append(os.path.join(pwd, '../../../'))
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from tqdm import tqdm
 
 from project_settings import project_path
 
@@ -58,7 +59,7 @@ def main():
 
     result = list()
     with open(args.valid_subset, "r", encoding="utf-8") as f:
-        for row in f:
+        for row in tqdm(f):
             row = json.loads(row)
             conversation = row["conversation"]
             for x in conversation:
