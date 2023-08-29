@@ -58,30 +58,32 @@ def main():
     )
 
     result = list()
-    with open(args.valid_subset, "r", encoding="utf-8") as f:
-        for row in tqdm(f):
-            row = json.loads(row)
-            conversation = row["conversation"]
-            for x in conversation:
-                # print(x)
-                human = x["human"]
-                assistant = x["assistant"]
-                text = "[Round 1]\n\n问：{}\n\n答：".format(human)
-                input_ids = tokenizer(text, return_tensors="pt", add_special_tokens=False).input_ids.to(args.device)
-            with torch.no_grad():
-                outputs = model.generate(
-                    input_ids=input_ids, max_new_tokens=args.max_new_tokens, do_sample=True,
-                    top_p=args.top_p, temperature=args.temperature, repetition_penalty=args.repetition_penalty,
-                    eos_token_id=tokenizer.eos_token_id
-                )
-                outputs = outputs.tolist()[0][len(input_ids[0]):]
-                response = tokenizer.decode(outputs)
-                response = response.strip().replace(tokenizer.eos_token, "").strip()
-                result.append({
-                    "prompt": human,
-                    "label": assistant,
-                    "predict": response
-                })
+    for subset, filename in [("train", args.train_subset), ("valid", args.valid_subset)]:
+        with open(filename, "r", encoding="utf-8") as f:
+            for row in tqdm(f):
+                row = json.loads(row)
+                conversation = row["conversation"]
+                for x in conversation:
+                    # print(x)
+                    human = x["human"]
+                    assistant = x["assistant"]
+                    text = "[Round 1]\n\n问：{}\n\n答：".format(human)
+                    input_ids = tokenizer(text, return_tensors="pt", add_special_tokens=False).input_ids.to(args.device)
+                with torch.no_grad():
+                    outputs = model.generate(
+                        input_ids=input_ids, max_new_tokens=args.max_new_tokens, do_sample=True,
+                        top_p=args.top_p, temperature=args.temperature, repetition_penalty=args.repetition_penalty,
+                        eos_token_id=tokenizer.eos_token_id
+                    )
+                    outputs = outputs.tolist()[0][len(input_ids[0]):]
+                    response = tokenizer.decode(outputs)
+                    response = response.strip().replace(tokenizer.eos_token, "").strip()
+                    result.append({
+                        "subset": subset,
+                        "prompt": human,
+                        "label": assistant,
+                        "predict": response
+                    })
     result = pd.DataFrame(result)
     result.to_excel(args.output_file, index=False, encoding="utf_8_sig")
     return
