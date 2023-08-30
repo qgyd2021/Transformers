@@ -3,6 +3,7 @@
 # nohup sh run.sh --stage 0 --stop_stage 1 --system_version centos &
 # sh run.sh --stage 0 --stop_stage 1 --system_version windows
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
+# sh run.sh --stage 2 --stop_stage 2 --system_version centos
 # sh run.sh --stage -1 --stop_stage 1
 
 # bitsandbytes
@@ -139,6 +140,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer_config.json" "${final_model_dir}/tokenizer_config.json"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer.json" "${final_model_dir}/tokenizer.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/vocab.txt" "${final_model_dir}/vocab.txt"
 
 fi
