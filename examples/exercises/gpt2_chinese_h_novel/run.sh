@@ -3,7 +3,7 @@
 # nohup sh run.sh --stage 0 --stop_stage 1 --system_version centos &
 # sh run.sh --stage 0 --stop_stage 1 --system_version windows
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
-# sh run.sh --stage 2 --stop_stage 2 --system_version centos
+# sh run.sh --stage 2 --stop_stage 2 --system_version centos --checkpoint_name checkpoint-6500
 # sh run.sh --stage -1 --stop_stage 1
 
 # bitsandbytes
@@ -22,6 +22,7 @@ valid_subset=valid.jsonl
 
 final_model_name=gpt2_chinese_h_novel
 
+checkpoint_name=final
 
 # parse options
 while true; do
@@ -135,7 +136,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: collect files"
   cd "${work_dir}" || exit 1;
 
-  cp "${serialization_dir}/final/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
+  cp "${serialization_dir}/${checkpoint_name}/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
 
   cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
   cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
