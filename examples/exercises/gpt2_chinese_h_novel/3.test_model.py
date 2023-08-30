@@ -21,7 +21,7 @@ python3 3.test_model.py \
 --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/gpt2_chinese_h_novel
 
 python3 3.test_model.py \
---trained_model_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/gpt2_chinese_h_novel/file_dir/serialization_dir/checkpoint-4000
+--trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/gpt2_chinese_h_novel
 
     """
     parser = argparse.ArgumentParser()

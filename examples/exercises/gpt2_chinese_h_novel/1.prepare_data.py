@@ -19,7 +19,8 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dataset_path", default="qgyd2021/h_novel", type=str)
-    parser.add_argument("--dataset_name", default="ltxsba_500m", type=str)
+    # parser.add_argument("--dataset_name", default="ltxsba_500m", type=str)
+    parser.add_argument("--dataset_name", default="ltxsba_5gb", type=str)
     parser.add_argument("--dataset_split", default="train", type=str)
     parser.add_argument(
         "--dataset_cache_dir",
