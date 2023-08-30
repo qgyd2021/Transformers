@@ -130,7 +130,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 
 
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: collect files"
   cd "${work_dir}" || exit 1;
 
