@@ -19,6 +19,8 @@ pretrained_model_name=gpt2-chinese-cluecorpussmall
 train_subset=train.jsonl
 valid_subset=valid.jsonl
 
+final_model_name=gpt2_chinese_h_novel
+
 
 # parse options
 while true; do
@@ -55,10 +57,12 @@ work_dir="$(pwd)"
 file_dir="$(pwd)/file_dir"
 pretrained_models_dir="${work_dir}/../../../pretrained_models";
 serialization_dir="${file_dir}/serialization_dir"
+final_model_dir="${work_dir}/../../../trained_models/${final_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${pretrained_models_dir}"
 mkdir -p "${serialization_dir}"
+mkdir -p "${final_model_dir}"
 
 
 export PYTHONPATH="${work_dir}/../../.."
@@ -122,5 +126,19 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   --valid_subset "${file_dir}/${valid_subset}" \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
   --output_dir "${serialization_dir}"
+
+fi
+
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+  $verbose && echo "stage 2: collect files"
+  cd "${work_dir}" || exit 1;
+
+  cp "${serialization_dir}/final/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
+
+  cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer_config.json" "${final_model_dir}/tokenizer_config.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer.json" "${final_model_dir}/tokenizer.json"
 
 fi

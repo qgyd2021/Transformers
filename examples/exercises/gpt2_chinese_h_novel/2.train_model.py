@@ -194,6 +194,8 @@ def main():
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
+
+    tokenizer.save_pretrained(final_save_path)
     return
 
 

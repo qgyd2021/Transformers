@@ -15,6 +15,10 @@ from project_settings import project_path
 
 
 def get_args():
+    """
+    python3 3.test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/h_novel_gpt2_lm/file_dir/serialization_dir/final
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--trained_model_path',
