@@ -16,7 +16,7 @@ from project_settings import project_path
 
 def get_args():
     """
-    python3 3.test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/h_novel_gpt2_lm/file_dir/serialization_dir/final
+    python3 3.test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/gpt2_chinese_h_novel
 
     """
     parser = argparse.ArgumentParser()
@@ -26,6 +26,11 @@ def get_args():
         type=str,
     )
     parser.add_argument('--device', default='auto', type=str)
+
+    parser.add_argument('--max_new_tokens', default=512, type=int)
+    parser.add_argument('--top_p', default=0.85, type=float)
+    parser.add_argument('--temperature', default=0.35, type=float)
+    parser.add_argument('--repetition_penalty', default=1.2, type=float)
 
     args = parser.parse_args()
     return args
@@ -59,11 +64,11 @@ def main():
         input_ids = input_ids.to(device)
 
         outputs = model.generate(input_ids,
-                                 max_new_tokens=200,
+                                 max_new_tokens=512,
                                  do_sample=True,
-                                 top_p=0.85,
-                                 temperature=0.35,
-                                 repetition_penalty=1.2,
+                                 top_p=args.top_p,
+                                 temperature=args.temperature,
+                                 repetition_penalty=args.repetition_penalty,
                                  eos_token_id=tokenizer.sep_token_id,
                                  pad_token_id=tokenizer.pad_token_id
                                  )
