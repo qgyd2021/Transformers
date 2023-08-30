@@ -184,7 +184,16 @@ def main():
         data_collator=data_collator,
         train_dataset=dataset_dict["train"],
     )
-    trainer.train()
+    train_result = trainer.train()
+
+    # 保存最好的 checkpoint
+    final_save_path = os.path.join(training_args.output_dir, "final")
+    trainer.save_model(final_save_path)  # Saves the tokenizer too
+    # 保存训练指标
+    metrics = train_result.metrics
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
     return
 
 
