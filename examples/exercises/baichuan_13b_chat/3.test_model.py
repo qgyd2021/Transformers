@@ -1,6 +1,13 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import argparse
+import json
+import os
+import random
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../../'))
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -11,9 +18,9 @@ from project_settings import project_path
 
 def get_args():
     """
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
+    python3 3.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/Baichuan-13B-Chat
 
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
+    python3 3.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
 
     """
     parser = argparse.ArgumentParser()

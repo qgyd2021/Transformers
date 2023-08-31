@@ -9,6 +9,7 @@ https://huggingface.co/YeungNLP/firefly-baichuan-13b
 
 https://huggingface.co/baichuan-inc/Baichuan-13B-Chat
 
+https://huggingface.co/spaces/WinterGYC/BaiChuan-13B-Chat
 
 ```
 
