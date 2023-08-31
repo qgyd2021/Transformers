@@ -50,10 +50,12 @@ def main():
     )
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
-        device_map="auto",
+        trust_remote_code=True,
+        low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
-        trust_remote_code=True
-    )
+        device_map="auto",
+        offload_folder="./offload"
+    ).to(args.device).eval()
     generation_config = GenerationConfig.from_pretrained(args.pretrained_model_name_or_path)
     model.generation_config = generation_config
 
