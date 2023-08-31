@@ -15,14 +15,12 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-pretrained_model_name=gpt2-chinese-cluecorpussmall
-
 train_subset=train.jsonl
 valid_subset=valid.jsonl
 
-final_model_name=gpt2_chinese_h_novel
+final_model_name=baichuan_13b_chat
 
-checkpoint_name=final
+final_checkpoint_name=final
 
 # parse options
 while true; do
@@ -81,66 +79,40 @@ elif [ $system_version == "ubuntu" ]; then
 fi
 
 
-declare -A pretrained_model_dict
-pretrained_model_dict=(
-  ["gpt2-chinese-cluecorpussmall"]="https://huggingface.co/uer/gpt2-chinese-cluecorpussmall"
-  ["gpt2"]="https://huggingface.co/gpt2"
-  ["japanese-gpt2-medium"]="https://huggingface.co/rinna/japanese-gpt2-medium"
+function search_best_ckpt() {
+  patience="$1";
 
-)
-pretrained_model_dir="${pretrained_models_dir}/${pretrained_model_name}"
+  cd "${serialization_dir}" || exit 1
+  last_epoch=$(ls . | \
+               grep "checkpoint-*" | \
+               awk -F'[-]' '{print$2}' | \
+               sort -n | \
+               awk 'END {print}')
 
+  target_dir=
+  if [ -n "${last_epoch}" ]; then
+    target_epoch=$((last_epoch - patience))
 
-if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
-  $verbose && echo "stage -1: download pretrained model"
-  cd "${file_dir}" || exit 1;
-
-  if [ ! -d "${pretrained_model_dir}" ]; then
-    cd "${pretrained_models_dir}" || exit 1;
-
-    repository_url="${pretrained_model_dict[${pretrained_model_name}]}"
-    git clone "${repository_url}"
-
-    cd "${pretrained_model_dir}" || exit 1;
-    rm flax_model.msgpack && rm pytorch_model.bin && rm tf_model.h5
-    wget "${repository_url}/resolve/main/pytorch_model.bin"
+    for epoch_idx in $(ls . | grep "checkpoint-*" | awk -F'[-]' '{print$2}' | sort -nr):
+    do
+      if [ "${epoch_idx}" -le "${target_epoch}" ]; then
+        target_dir="checkpoint-${epoch_idx}";
+        break;
+      fi
+    done
   fi
-fi
+
+  echo "${target_dir}"
+}
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-  $verbose && echo "stage 0: prepare data"
+  $verbose && echo "stage 0: download pretrained model"
   cd "${work_dir}" || exit 1;
+  cd "${pretrained_models_dir}" || exit 1;
 
-  python3 1.prepare_data.py \
-  --train_subset "${file_dir}/${train_subset}" \
-  --valid_subset "${file_dir}/${valid_subset}" \
-
-fi
-
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-  $verbose && echo "stage 1: train model"
-  cd "${work_dir}" || exit 1;
-
-  python3 2.train_model.py \
-  --train_subset "${file_dir}/${train_subset}" \
-  --valid_subset "${file_dir}/${valid_subset}" \
-  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --output_dir "${serialization_dir}"
-
-fi
-
-
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-  $verbose && echo "stage 2: collect files"
-  cd "${work_dir}" || exit 1;
-
-  cp "${serialization_dir}/${checkpoint_name}/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
-
-  cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer_config.json" "${final_model_dir}/tokenizer_config.json"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/vocab.txt" "${final_model_dir}/vocab.txt"
+  if [ ! -d "Baichuan-13B-Chat" ]; then
+    git clone "https://huggingface.co/baichuan-inc/Baichuan-13B-Chat"
+  fi
 
 fi
