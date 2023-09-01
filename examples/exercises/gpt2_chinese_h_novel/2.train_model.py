@@ -131,7 +131,6 @@ def main():
             keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
             num_proc=None,
-            str
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
