@@ -82,11 +82,13 @@ def main():
     dataset_dict = DatasetDict()
     train_data_files = [args.train_subset]
     dataset_dict["train"] = load_dataset(
-        path="json", data_files=[str(file) for file in train_data_files]
+        path="json", data_files=[str(file) for file in train_data_files],
+        streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     dataset_dict["valid"] = load_dataset(
-        path="json", data_files=[str(file) for file in valid_data_files]
+        path="json", data_files=[str(file) for file in valid_data_files],
+        streaming=True,
     )["train"]
 
     print(dataset_dict)
