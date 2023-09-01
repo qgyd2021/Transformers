@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import platform
 
-from datasets import Dataset, DatasetDict, IterableDataset, load_dataset
+from datasets import Dataset, DatasetDict, IterableDatasetDict, IterableDataset, load_dataset
 import torch
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
@@ -79,16 +79,17 @@ def main():
     args = get_args()
 
     # dataset
-    dataset_dict = DatasetDict()
+    # dataset_dict = DatasetDict()
+    dataset_dict = IterableDatasetDict()
     train_data_files = [args.train_subset]
     dataset_dict["train"] = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files],
-        # streaming=True,
+        streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     dataset_dict["valid"] = load_dataset(
         path="json", data_files=[str(file) for file in valid_data_files],
-        # streaming=True,
+        streaming=True,
     )["train"]
 
     print(dataset_dict)
@@ -130,6 +131,7 @@ def main():
             keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
             num_proc=None,
+            str
         )
         dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
