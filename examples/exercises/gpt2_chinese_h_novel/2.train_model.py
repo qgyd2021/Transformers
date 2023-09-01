@@ -128,31 +128,31 @@ def main():
             encode_with_truncation,
             batched=True,
             drop_last_batch=True,
-            keep_in_memory=False,
+            # keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
-            num_proc=None,
+            # num_proc=None,
         )
-        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
     else:
         dataset_dict = dataset_dict.map(
             encode_without_truncation,
             batched=True,
             drop_last_batch=True,
-            keep_in_memory=False,
+            # keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
-            num_proc=None,
+            # num_proc=None,
         )
-        dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        # dataset_dict.set_format(type="torch", columns=["input_ids", "attention_mask"])
 
         dataset_dict = dataset_dict.map(
             group_texts,
             batched=True,
             drop_last_batch=True,
-            keep_in_memory=False,
+            # keep_in_memory=False,
             # num_proc=None if platform.system() == 'Windows' else os.cpu_count() // 2,
-            num_proc=None,
+            # num_proc=None,
         )
-        dataset_dict.set_format("torch")
+        # dataset_dict.set_format("torch")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
