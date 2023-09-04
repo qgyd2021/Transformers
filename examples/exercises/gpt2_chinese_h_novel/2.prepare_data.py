@@ -36,6 +36,9 @@ def get_args():
     )
     parser.add_argument("--train_subset", default="train.jsonl", type=str)
     parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
+
+    parser.add_argument("--min_text_length", default=512, type=int)
+
     args = parser.parse_args()
     return args
 
@@ -206,14 +209,10 @@ def main():
 
     train_dataset = dataset_dict["train"]
 
-    tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_name_or_path)
-
-    text_normalize = TextNormalization()
-
+    text_ = ""
     with open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
         for sample in tqdm(train_dataset):
-            # print(sample)
 
             source = sample["source"]
             idx = sample["idx"]
@@ -222,16 +221,12 @@ def main():
             row_idx = sample["row_idx"]
             text = sample["text"]
 
-            text = text_normalize.normalize(text)
-
-            # outputs = tokenizer.tokenize(text)
-            # if tokenizer.unk_token in outputs:
-            #     print(text)
-            #     print(outputs)
-            #     exit(0)
+            text_ += text
+            if len(text_) < args.min_text_length:
+                continue
 
             row = {
-                "text": text
+                "text": text_
             }
             row = json.dumps(row, ensure_ascii=False)
 
@@ -240,6 +235,7 @@ def main():
             else:
                 fvalid.write("{}\n".format(row))
 
+            text_ = ""
     return
 
 
