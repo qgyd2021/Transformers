@@ -44,7 +44,7 @@ def get_args():
     parser.add_argument("--max_grad_norm", default=1.0, type=float)
     parser.add_argument("--num_train_epochs", default=3.0, type=float)
     # parser.add_argument("--max_steps", default=-1, type=int)
-    parser.add_argument("--max_steps", default=3e9, type=int)
+    parser.add_argument("--max_steps", default=3e8, type=int)
     parser.add_argument("--lr_scheduler_type", default="cosine", type=str)
     parser.add_argument("--warmup_ratio", default=0.0, type=float)
     parser.add_argument("--warmup_steps", default=3000, type=int)
@@ -118,10 +118,15 @@ def main():
         if total_length >= args.max_seq_length:
             total_length = (total_length // args.max_seq_length) * args.max_seq_length
 
-        result = {
-            k: [t[i: i + args.max_seq_length] for i in range(0, total_length, args.max_seq_length)]
-            for k, t in concatenated_examples.items()
-        }
+            result = {
+                k: [t[i: i + args.max_seq_length] for i in range(0, total_length, args.max_seq_length)]
+                for k, t in concatenated_examples.items()
+            }
+        else:
+            result = {
+                k: [] for k, t in concatenated_examples.items()
+            }
+
         return result
 
     if args.truncate_longer_samples:
