@@ -69,6 +69,7 @@ def main():
 
             outputs = tokenizer.tokenize(text)
             if tokenizer.unk_token in outputs:
+                print(text)
                 print(outputs)
                 exit(0)
 
