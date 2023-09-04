@@ -224,11 +224,11 @@ def main():
 
             text = text_normalize.normalize(text)
 
-            outputs = tokenizer.tokenize(text)
-            if tokenizer.unk_token in outputs:
-                print(text)
-                print(outputs)
-                exit(0)
+            # outputs = tokenizer.tokenize(text)
+            # if tokenizer.unk_token in outputs:
+            #     print(text)
+            #     print(outputs)
+            #     exit(0)
 
             row = {
                 "text": text
@@ -240,14 +240,6 @@ def main():
             else:
                 fvalid.write("{}\n".format(row))
 
-    return
-
-
-def demo1():
-    text = "……..\"欢迎光临.shushuwu.\""
-    text_normalize = TextNormalization()
-    text = text_normalize.normalize(text)
-    print(text)
     return
 
 
