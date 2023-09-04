@@ -11,6 +11,7 @@ sys.path.append(os.path.join(pwd, '../../../'))
 
 from datasets import Dataset, DatasetDict, IterableDataset, load_dataset
 from tqdm import tqdm
+from transformers.models.bert.tokenization_bert import BertTokenizer
 
 from project_settings import project_path
 
@@ -46,6 +47,8 @@ def main():
 
     train_dataset = dataset_dict["train"]
 
+    tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_name_or_path)
+
     with open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
         for sample in tqdm(train_dataset):
@@ -58,6 +61,9 @@ def main():
             row_idx = sample["row_idx"]
             text = sample["text"]
 
+            outputs = tokenizer.tokenize(text)
+            print(outputs)
+            exit(0)
             row = {
                 "text": text
             }
