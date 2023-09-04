@@ -79,7 +79,7 @@ class TextNormalization(object):
             "\v": "",
             "\f": "",
 
-            "…": "...",
+            "…": "",
 
         }
 
@@ -87,7 +87,6 @@ class TextNormalization(object):
             "^_^": "",
             "◆": "",
             "☆": "",
-            "...": "…",
 
             "()": "",
             "｛｝": "",
@@ -230,7 +229,7 @@ def main():
 
 
 def demo1():
-    text = "难道说……之前她进入那家店的事，并不是幻觉？"
+    text = "……..\"欢迎光临.shushuwu.\""
     text_normalize = TextNormalization()
     text = text_normalize.normalize(text)
     print(text)
