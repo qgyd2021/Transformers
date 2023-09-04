@@ -114,6 +114,7 @@ class TextNormalization(object):
 
             "脔": "",
             "氵朝": "潮",
+            "咕哝": "嘟囔"
 
         }
 
