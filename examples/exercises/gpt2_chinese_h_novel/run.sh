@@ -18,6 +18,8 @@ stop_stage=5
 
 pretrained_model_name=gpt2-chinese-cluecorpussmall
 
+normalize_file=normalize.txt
+
 train_subset=train.jsonl
 valid_subset=valid.jsonl
 
@@ -110,21 +112,31 @@ fi
 
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
-  $verbose && echo "stage 0: prepare data"
+  $verbose && echo "stage 0: text normalize prepare"
   cd "${work_dir}" || exit 1;
 
-  python3 1.prepare_data.py \
+  python3 1.test_normalize.py \
+  --output_file "${file_dir}/${normalize_file}" \
+
+fi
+
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+  $verbose && echo "stage 1: prepare data"
+  cd "${work_dir}" || exit 1;
+
+  python3 2.prepare_data.py \
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
 
 fi
 
 
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-  $verbose && echo "stage 1: train model"
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+  $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-  python3 2.train_model.py \
+  python3 3.train_model.py \
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
@@ -133,8 +145,8 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 fi
 
 
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-  $verbose && echo "stage 2: collect files"
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+  $verbose && echo "stage 3: collect files"
   cd "${work_dir}" || exit 1;
 
   cp "${serialization_dir}/${checkpoint_name}/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
