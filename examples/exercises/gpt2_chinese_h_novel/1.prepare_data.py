@@ -83,6 +83,38 @@ class TextNormalization(object):
 
         }
 
+        self.string_map = {
+            "^_^": "",
+            "◆": "",
+            "☆": "",
+            "...": "…",
+
+            "()": "",
+            "｛｝": "",
+            "『』": "",
+            "《》": "",
+
+            "&lt;": "<",
+            "&gt;": ">",
+            "&amp;": " ",
+            "&nbsp;": " ",
+            "quot;": "\"",
+            "nbsp;": " ",
+            "amp;": "",
+            "&#10008": "✘",
+
+            "龙腾小说网ltxs520.com": "",
+            "龙腾小说吧www.ltxsba.net": "",
+            "龙腾小说网 ltxs520.com": "",
+            "龙腾小说 ltxs520.com": "",
+            "龙腾小说ltxs520.com": "",
+
+            "(..)免费": "",
+
+            "\"\"": "\"\n\"",
+
+        }
+
     def is_q_number(self, uchar):
         """判断一个unicode是否是全角数字"""
         if u'\uff10' <= uchar <= u'\uff19':
@@ -129,10 +161,20 @@ class TextNormalization(object):
             text_ = self.replace_punctuation(text_)
         return text_
 
+    def replace_string(self, text: str):
+        text_ = text
+        for k, v in self.string_map.items():
+            text_ = text_.replace(k, v)
+
+        if text_ != text:
+            text_ = self.replace_string(text_)
+        return text_
+
     def normalize(self, text: str):
         text = self.lowercase(text)
         # text = self.number_alphabet_q_to_b(text)
         text = self.replace_punctuation(text)
+        text = self.replace_string(text)
 
         return text
 
