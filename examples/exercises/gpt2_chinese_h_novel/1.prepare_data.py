@@ -68,8 +68,10 @@ def main():
             text = sample["text"]
 
             outputs = tokenizer.tokenize(text)
-            print(outputs)
-            exit(0)
+            if tokenizer.unk_token in outputs:
+                print(outputs)
+                exit(0)
+
             row = {
                 "text": text
             }
