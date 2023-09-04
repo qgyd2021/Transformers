@@ -113,6 +113,7 @@ class TextNormalization(object):
             "\"\"": "\"\n\"",
 
             "脔": "",
+            "氵朝": "潮",
 
         }
 
