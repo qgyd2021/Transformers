@@ -46,7 +46,42 @@ class TextNormalization(object):
     """
 
     def __init__(self):
-        pass
+        self.punctuation_map = {
+            "，": ",",
+            "。": ".",
+            "、": ",",
+            "？": "?",
+            "：": ":",
+            "｛": "{",
+            "｝": "}",
+            "（": "(",
+            "）": ")",
+            "【": "(",
+            "】": ")",
+            "「": "\"",
+            "」": "\"",
+            "『": "\"",
+            "』": "\"",
+            "《": "(",
+            "》": ")",
+            "”": "\"",
+            "“": "\"",
+            "‘": "\'",
+            "’": "\'",
+            "=": "",
+
+            "": "",
+            " ": "",
+            " ": "",
+            "\t": "",
+            "\n": "",
+            "\r": "",
+            "\v": "",
+            "\f": "",
+
+            "…": "...",
+
+        }
 
     def is_q_number(self, uchar):
         """判断一个unicode是否是全角数字"""
@@ -85,9 +120,19 @@ class TextNormalization(object):
         result = str(text).lower()
         return result
 
+    def replace_punctuation(self, text: str):
+        text_ = text
+        for k, v in self.punctuation_map.items():
+            text_ = text_.replace(k, v)
+
+        if text_ != text:
+            text_ = self.replace_punctuation(text_)
+        return text_
+
     def normalize(self, text: str):
         text = self.lowercase(text)
-        text = self.number_alphabet_q_to_b(text)
+        # text = self.number_alphabet_q_to_b(text)
+        text = self.replace_punctuation(text)
 
         return text
 
@@ -139,6 +184,14 @@ def main():
             else:
                 fvalid.write("{}\n".format(row))
 
+    return
+
+
+def demo1():
+    text = "难道说……之前她进入那家店的事，并不是幻觉？"
+    text_normalize = TextNormalization()
+    text = text_normalize.normalize(text)
+    print(text)
     return
 
 
