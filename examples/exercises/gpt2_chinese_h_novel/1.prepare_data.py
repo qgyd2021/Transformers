@@ -81,8 +81,14 @@ class TextNormalization(object):
             result += c
         return result
 
+    def lowercase(self, text: str):
+        result = str(text).lower()
+        return result
+
     def normalize(self, text: str):
+        text = self.lowercase(text)
         text = self.number_alphabet_q_to_b(text)
+
         return text
 
 
