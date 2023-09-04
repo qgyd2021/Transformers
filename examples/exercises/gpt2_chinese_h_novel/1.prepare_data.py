@@ -125,6 +125,7 @@ class TextNormalization(object):
             "氵朝": "潮",
             "咕哝": "嘟囔",
             "迳自": "径自",
+            "窸窣": "稀疏",
 
         }
 
