@@ -112,6 +112,8 @@ class TextNormalization(object):
 
             "\"\"": "\"\n\"",
 
+            "脔": "",
+
         }
 
     def is_q_number(self, uchar):
