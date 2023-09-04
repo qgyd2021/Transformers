@@ -40,6 +40,52 @@ def get_args():
     return args
 
 
+class TextNormalization(object):
+    """
+    https://blog.csdn.net/buluxianfeng/article/details/126223346
+    """
+
+    def __init__(self):
+        pass
+
+    def is_q_number(self, uchar):
+        """判断一个unicode是否是全角数字"""
+        if u'\uff10' <= uchar <= u'\uff19':
+            return True
+        else:
+            return False
+
+    def is_q_alphabet(self, uchar):
+        """判断一个unicode是否是全角英文字母"""
+        if (u'\uff21' <= uchar <= u'\uff3a') or (u'\uff41' <= uchar <= u'\uff5a'):
+            return True
+        else:
+            return False
+
+    def q_to_b(self, uchar):
+        """单个字符 全角转半角"""
+        inside_code = ord(uchar)
+        if inside_code == 0x3000:
+            inside_code = 0x0020
+        else:
+            inside_code -= 0xfee0
+        if inside_code < 0x0020 or inside_code > 0x7e:
+            return uchar
+        return chr(inside_code)
+
+    def number_alphabet_q_to_b(self, text: str):
+        result = ""
+        for c in text:
+            if self.is_q_alphabet(c) or self.is_q_number(c):
+                c = self.q_to_b(c)
+            result += c
+        return result
+
+    def normalize(self, text: str):
+        text = self.number_alphabet_q_to_b(text)
+        return text
+
+
 def main():
     args = get_args()
 
@@ -55,6 +101,8 @@ def main():
 
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_name_or_path)
 
+    text_normalize = TextNormalization()
+
     with open(args.train_subset, "w", encoding="utf-8") as ftrain, \
         open(args.valid_subset, "w", encoding="utf-8") as fvalid:
         for sample in tqdm(train_dataset):
@@ -66,6 +114,8 @@ def main():
             novel_name = sample["novel_name"]
             row_idx = sample["row_idx"]
             text = sample["text"]
+
+            text = text_normalize.normalize(text)
 
             outputs = tokenizer.tokenize(text)
             if tokenizer.unk_token in outputs:
