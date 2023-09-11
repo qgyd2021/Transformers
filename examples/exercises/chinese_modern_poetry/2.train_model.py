@@ -111,16 +111,16 @@ def main():
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
-    with deepspeed.zero.Init():
-        model = AutoModelForCausalLM.from_pretrained(
-            args.pretrained_model_name_or_path,
-            trust_remote_code=True,
-            device_map="auto",
-        )
-        model.generation_config = GenerationConfig.from_pretrained(
-            args.pretrained_model_name_or_path,
-            trust_remote_code=True,
-        )
+
+    model = AutoModelForCausalLM.from_pretrained(
+        args.pretrained_model_name_or_path,
+        trust_remote_code=True,
+        device_map="auto",
+    )
+    # model.generation_config = GenerationConfig.from_pretrained(
+    #     args.pretrained_model_name_or_path,
+    #     trust_remote_code=True,
+    # )
 
     # tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
     # model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
