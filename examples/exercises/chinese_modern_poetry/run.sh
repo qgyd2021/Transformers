@@ -165,7 +165,11 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-  python3 2.train_model.py \
+  # python3 2.train_model.py \
+  # --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  # --output_dir "${serialization_dir}"
+
+  deepspeed --num_gpus=1 2.train_model.py \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
   --output_dir "${serialization_dir}"
 
