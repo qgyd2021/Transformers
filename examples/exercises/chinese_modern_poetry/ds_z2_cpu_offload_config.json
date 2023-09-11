@@ -27,10 +27,12 @@
     "stage": 3,
     "offload_optimizer": {
       "device": "nvme",
+      "nvme_path": "./offload_optimizer",
       "pin_memory": true
     },
     "offload_param": {
       "device": "nvme",
+      "nvme_path": "./offload_param",
       "pin_memory": true
     },
     "overlap_comm": true,
