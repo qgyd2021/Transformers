@@ -27,13 +27,18 @@
     "stage": 3,
     "offload_optimizer": {
       "device": "nvme",
-      "nvme_path": "./offload_optimizer",
-      "pin_memory": true
+      "nvme_path": "./nvme",
+      "pin_memory": true,
+      "buffer_count": 4,
+      "fast_init": false
     },
     "offload_param": {
       "device": "nvme",
-      "nvme_path": "./offload_param",
-      "pin_memory": true
+      "nvme_path": "./nvme",
+      "pin_memory": true,
+      "buffer_count": 5,
+      "buffer_size": 1e8,
+      "max_in_cpu": 1e9
     },
     "overlap_comm": true,
     "contiguous_gradients": true,
