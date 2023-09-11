@@ -105,8 +105,14 @@ def main():
     print(train_dataset)
 
     # pretrained model
-    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
-    model = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.pretrained_model_name_or_path,
+        trust_remote_code=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(
+        args.pretrained_model_name_or_path,
+        trust_remote_code=True,
+    )
     # tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
     # model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
 
