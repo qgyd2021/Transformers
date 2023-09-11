@@ -136,19 +136,6 @@ def main():
         device_map="auto",
     )
 
-    # def encode_with_truncation(examples):
-    #     prompt_ = examples.pop('prompt')
-    #     response_ = examples.pop('response')
-    #     text = '<s>{input}</s>{target}</s>'.format(input=prompt_, target=response_)
-    #     result = tokenizer.__call__(
-    #         text,
-    #         truncation=True,
-    #         # padding='max_length',
-    #         max_length=args.max_seq_length,
-    #         return_special_tokens_mask=True
-    #     )
-    #     return result
-
     def encode_with_truncation(examples):
         prompt_ = examples.pop('prompt')
         response_ = examples.pop('response')
