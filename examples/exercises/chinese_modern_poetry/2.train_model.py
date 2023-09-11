@@ -109,7 +109,7 @@ def main():
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
-    model = AutoModelForCausalLM.from_pretrained(
+    model = AutoModel.from_pretrained(
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
