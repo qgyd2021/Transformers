@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# sh run.sh --stage 0 --stop_stage 0 --system_version macos
+# sh run.sh --stage 0 --stop_stage 0 --system_version centos
 
 
 # params
@@ -69,6 +69,7 @@ export PYTHONPATH="${work_dir}/../../.."
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
 elif [ $system_version == "centos" ]; then
+  # conda activate Transformers
   alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 elif [ $system_version == "ubuntu" ]; then
   alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
@@ -140,5 +141,25 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   if [ ! -e "tokenizer.json" ]; then
       wget -c "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/resolve/main/tokenizer.json"
   fi
+
+fi
+
+
+if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
+  $verbose && echo "stage 1: prepare data"
+  cd "${work_dir}" || exit 1;
+
+  python3 1.prepare_data.py
+
+fi
+
+
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+  $verbose && echo "stage 2: train model"
+  cd "${work_dir}" || exit 1;
+
+  python3 2.train_model.py \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --output_dir "${serialization_dir}"
 
 fi
