@@ -4,6 +4,7 @@
 https://huggingface.co/docs/transformers/main_classes/deepspeed
 https://zhuanlan.zhihu.com/p/630734624
 https://blog.csdn.net/u013250861/article/details/131147120
+https://deepspeed.readthedocs.io/en/latest/optimizers.html
 
 deepspeed --num_gpus=1 2.train_model.py
 """

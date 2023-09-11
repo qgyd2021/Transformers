@@ -26,11 +26,11 @@
   "zero_optimization": {
     "stage": 3,
     "offload_optimizer": {
-      "device": "NVME",
+      "device": "nvme",
       "pin_memory": true
     },
     "offload_param": {
-      "device": "NVME",
+      "device": "nvme",
       "pin_memory": true
     },
     "overlap_comm": true,
