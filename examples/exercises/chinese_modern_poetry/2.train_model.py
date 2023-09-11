@@ -111,6 +111,11 @@ def main():
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
+    # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
+    if tokenizer.__class__.__name__ == "QWenTokenizer":
+        tokenizer.pad_token_id = tokenizer.eod_id
+        tokenizer.bos_token_id = tokenizer.eod_id
+        tokenizer.eos_token_id = tokenizer.eod_id
 
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
