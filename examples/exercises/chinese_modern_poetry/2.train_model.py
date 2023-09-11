@@ -87,13 +87,22 @@ def main():
     os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
-    train_files = [
-        (project_path / "datasets/chinese_modern_poetry/training_imagery2_maxlen256.json").as_posix(),
-        (project_path / "datasets/chinese_modern_poetry/training_imagery3_maxlen256.json").as_posix(),
-        (project_path / "datasets/chinese_modern_poetry/training_imagery4_maxlen256.json").as_posix(),
-        (project_path / "datasets/chinese_modern_poetry/training_imagery5_maxlen256.json").as_posix(),
-    ]
-    train_dataset = Dataset.from_json(path_or_paths=train_files, split=datasets.Split.TRAIN)
+    # train_files = [
+    #     (project_path / "datasets/chinese_modern_poetry/training_imagery2_maxlen256.json").as_posix(),
+    #     (project_path / "datasets/chinese_modern_poetry/training_imagery3_maxlen256.json").as_posix(),
+    #     (project_path / "datasets/chinese_modern_poetry/training_imagery4_maxlen256.json").as_posix(),
+    #     (project_path / "datasets/chinese_modern_poetry/training_imagery5_maxlen256.json").as_posix(),
+    # ]
+    # train_dataset = Dataset.from_json(path_or_paths=train_files, split=datasets.Split.TRAIN)
+
+    dataset_dict = load_dataset(
+        path=args.dataset_path,
+        name=args.dataset_name,
+        split=args.dataset_split,
+        cache_dir=args.dataset_cache_dir
+    )
+    train_dataset = dataset_dict["train"]
+    print(train_dataset)
 
     # pretrained model
     # tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
