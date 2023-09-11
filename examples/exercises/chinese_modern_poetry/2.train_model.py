@@ -50,6 +50,7 @@ def get_args():
     )
     parser.add_argument("--cache_dir", default="cache_dir", type=str)
 
+    # train
     parser.add_argument("--output_dir", default="serialization_dir", type=str)
     parser.add_argument("--overwrite_output_dir", action="store_true")
     parser.add_argument("--evaluation_strategy", default="no", choices=["no", "steps", "epoch"], type=str)
@@ -85,9 +86,11 @@ def get_args():
     # parser.add_argument("--gradient_checkpointing", action="store_true")
     parser.add_argument("--gradient_checkpointing", action="store_false")
 
+    # dataset process
     parser.add_argument("--truncate_longer_samples", action="store_true")
     parser.add_argument("--max_seq_length", default=1024, type=int)
 
+    # lora
     parser.add_argument("--lora_rank", default=64, type=int)
     parser.add_argument("--lora_alpha", default=16, type=int)
     parser.add_argument("--lora_dropout", default=0.05, type=int)
@@ -291,11 +294,11 @@ def main():
         encode_with_truncation,
         batched=False,
         keep_in_memory=False,
-        num_proc=None if platform.system() == 'Windows' else os.cpu_count(),
-        cache_file_name=os.path.join(args.cache_dir, 'train.cache')
+        num_proc=None if platform.system() == "Windows" else os.cpu_count(),
+        cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
-    train_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask'])
-    print('Train Dataset Examples Batch Number: {}'.format(len(train_dataset)))
+    train_dataset.set_format(type='torch', columns=["input_ids", "attention_mask", "target_mask"])
+    print("Train Dataset Examples Batch Number: {}".format(len(train_dataset)))
 
     # 初始化 Trainer
     trainer = LoRATrainer(
