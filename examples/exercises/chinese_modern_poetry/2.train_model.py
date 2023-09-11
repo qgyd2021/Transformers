@@ -23,10 +23,14 @@ from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers import BloomTokenizerFast, BloomForCausalLM
 from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 from transformers.generation import GenerationConfig
-from transformers.trainer import Trainer
+# from transformers.trainer import Trainer
 from transformers.training_args import TrainingArguments
 
 from project_settings import project_path
+from toolbox.transformers.data.dataset.dataset import SFTDataset, ChatGLM2SFTDataset
+from toolbox.transformers.data.data_collator import SFTDataCollator
+from toolbox.transformers.modules.loss import TargetLMLoss
+from toolbox.transformers.trainer import Trainer
 
 
 def get_args():
@@ -129,26 +133,54 @@ def main():
         trust_remote_code=True,
         device_map="auto",
     )
-    # model.generation_config = GenerationConfig.from_pretrained(
-    #     args.pretrained_model_name_or_path,
-    #     trust_remote_code=True,
-    # )
 
-    # tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
-    # model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
+    # def encode_with_truncation(examples):
+    #     prompt_ = examples.pop('prompt')
+    #     response_ = examples.pop('response')
+    #     text = '<s>{input}</s>{target}</s>'.format(input=prompt_, target=response_)
+    #     result = tokenizer.__call__(
+    #         text,
+    #         truncation=True,
+    #         # padding='max_length',
+    #         max_length=args.max_seq_length,
+    #         return_special_tokens_mask=True
+    #     )
+    #     return result
 
     def encode_with_truncation(examples):
         prompt_ = examples.pop('prompt')
         response_ = examples.pop('response')
-        text = '<s>{input}</s>{target}</s>'.format(input=prompt_, target=response_)
-        result = tokenizer.__call__(
-            text,
-            truncation=True,
-            # padding='max_length',
-            max_length=args.max_seq_length,
-            return_special_tokens_mask=True
-        )
-        return result
+        utterances = [
+            "<s>{input}</s>".format(input=prompt_),
+            "{target}</s>".format(target=response_)
+        ]
+
+        utterances_ids = tokenizer(utterances, add_special_tokens=False).input_ids
+
+        input_ids = list()
+        target_mask = list()
+        for i, utterances_id in enumerate(utterances_ids):
+            input_ids += utterances_id
+            if i % 2 == 0:
+                target_mask += [0] * (len(utterances_id))
+            else:
+                input_ids += [tokenizer.eos_token_id]
+                target_mask += [1] * (len(utterances_id) + 1)
+
+        assert len(input_ids) == len(target_mask)
+
+        input_ids = input_ids[:args.max_seq_length]
+        target_mask = target_mask[:args.max_seq_length]
+        attention_mask = [1] * len(input_ids)
+
+        assert len(input_ids) == len(target_mask) == len(attention_mask)
+
+        inputs = {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "target_mask": target_mask
+        }
+        return inputs
 
     train_dataset = train_dataset.map(
         encode_with_truncation,
@@ -161,9 +193,6 @@ def main():
     print('Train Dataset Examples Batch Number: {}'.format(len(train_dataset)))
 
     # training
-    data_collator = DataCollatorForLanguageModeling(
-        tokenizer=tokenizer, mlm=False
-    )
     training_args = TrainingArguments(
         output_dir=args.output_dir,
         overwrite_output_dir=args.overwrite_output_dir,
@@ -194,14 +223,28 @@ def main():
         resume_from_checkpoint=args.resume_from_checkpoint,
         gradient_checkpointing=args.gradient_checkpointing,
     )
+    # 初始化损失函数
+    loss_func = TargetLMLoss(ignore_index=-100)
+
+    data_collator = SFTDataCollator(tokenizer, args.max_seq_length)
+
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=data_collator,
         train_dataset=train_dataset,
+        compute_loss=loss_func
     )
-    trainer.train()
+    train_result = trainer.train()
 
+    # 保存最好的 checkpoint
+    final_save_path = os.path.join(training_args.output_dir, "final")
+    trainer.save_model(final_save_path)  # Saves the tokenizer too
+    # 保存训练指标
+    metrics = train_result.metrics
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
     return
 
 
