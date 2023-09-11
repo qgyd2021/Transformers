@@ -15,6 +15,7 @@ import sentencepiece
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers import BloomTokenizerFast, BloomForCausalLM
 from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
+from transformers.generation import GenerationConfig
 from transformers.trainer import Trainer
 from transformers.training_args import TrainingArguments
 
@@ -109,10 +110,16 @@ def main():
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
-    model = AutoModel.from_pretrained(
+    model = AutoModelForCausalLM.from_pretrained(
+        args.pretrained_model_name_or_path,
+        trust_remote_code=True,
+        device_map="auto",
+    )
+    model.generation_config = GenerationConfig.from_pretrained(
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
     )
+
     # tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
     # model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
 
