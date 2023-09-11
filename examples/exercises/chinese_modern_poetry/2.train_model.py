@@ -3,6 +3,8 @@
 """
 https://huggingface.co/docs/transformers/main_classes/deepspeed
 https://zhuanlan.zhihu.com/p/630734624
+
+deepspeed --num_gpus=1 2.train_model.py
 """
 import argparse
 import os
