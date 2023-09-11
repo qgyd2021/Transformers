@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
-# sh run.sh --stage 1 --stop_stage 2 --system_version centos
+# sh run.sh --stage 1 --stop_stage 1 --system_version centos
+# sh run.sh --stage 2 --stop_stage 2 --system_version centos
 
 # bitsandbytes
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"

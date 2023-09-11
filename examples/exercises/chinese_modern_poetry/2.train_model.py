@@ -14,7 +14,7 @@ from datasets.splits import NamedSplit
 import sentencepiece
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers import BloomTokenizerFast, BloomForCausalLM
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
 from transformers.trainer import Trainer
 from transformers.training_args import TrainingArguments
 
@@ -105,10 +105,10 @@ def main():
     print(train_dataset)
 
     # pretrained model
-    # tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
-    # model = AutoModel.from_pretrained(args.pretrained_model_name_or_path)
-    tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
-    model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
+    model = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
+    # tokenizer = BloomTokenizerFast.from_pretrained(args.pretrained_model_name_or_path)
+    # model = BloomForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
 
     def encode_with_truncation(examples):
         prompt_ = examples.pop('prompt')
