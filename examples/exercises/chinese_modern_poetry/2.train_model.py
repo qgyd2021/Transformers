@@ -298,7 +298,7 @@ def main():
         num_proc=None if platform.system() == "Windows" else os.cpu_count(),
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
-    train_dataset.set_format(type='torch', columns=["input_ids", "attention_mask", "target_mask"])
+    train_dataset.set_format(type=None, columns=["input_ids", "attention_mask", "target_mask"])
     print("Train Dataset Examples Batch Number: {}".format(len(train_dataset)))
 
     # 初始化 Trainer
