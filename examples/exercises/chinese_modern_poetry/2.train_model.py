@@ -157,6 +157,7 @@ def main():
     args = get_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
     dataset_dict = load_dataset(
