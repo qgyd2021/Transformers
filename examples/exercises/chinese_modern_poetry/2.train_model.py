@@ -67,7 +67,7 @@ def get_args():
     parser.add_argument("--dataloader_num_workers", default=5, type=int)
     parser.add_argument("--disable_tqdm", action="store_false")
     parser.add_argument("--remove_unused_columns", action="store_false")
-    parser.add_argument("--deepspeed", default="ds_z3_config.json", type=str)
+    parser.add_argument("--deepspeed", default="ds_z2_cpu_offload_config.json", type=str)
     # parser.add_argument("--deepspeed", default=None, type=str)
     parser.add_argument("--optim", default="adamw_hf", type=str)
     parser.add_argument("--report_to", default="tensorboard", type=str)
