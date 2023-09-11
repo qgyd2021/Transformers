@@ -70,6 +70,7 @@ def get_args():
     # parser.add_argument("--fp16", action="store_true")
     parser.add_argument("--fp16", action="store_false")
     parser.add_argument("--half_precision_backend", default="auto", type=str)
+    parser.add_argument("--local_rank", default=-1, type=int)
     parser.add_argument("--dataloader_num_workers", default=5, type=int)
     parser.add_argument("--disable_tqdm", action="store_false")
     parser.add_argument("--remove_unused_columns", action="store_false")
@@ -183,6 +184,7 @@ def main():
         no_cuda=args.no_cuda,
         fp16=args.fp16,
         half_precision_backend=args.half_precision_backend,
+        local_rank=args.local_rank,
         dataloader_num_workers=args.dataloader_num_workers,
         disable_tqdm=args.disable_tqdm,
         remove_unused_columns=args.remove_unused_columns,
