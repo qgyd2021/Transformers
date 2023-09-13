@@ -14,8 +14,8 @@ def get_args():
     """
     python3 3.merge_lora.py \
     --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/Qwen/Qwen-7B \
-    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/chinese_modern_poetry/file_dir/serialization_dir/checkpoint-38000 \
-    --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_chinese_modern_poetry
+    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/chinese_modern_poetry/file_dir/serialization_dir/final \
+    --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_modern_poetry
 
     """
     parser = argparse.ArgumentParser()

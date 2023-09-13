@@ -181,3 +181,15 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
   --save_directory "${final_model_dir}"
 
 fi
+
+
+if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
+  $verbose && echo "stage 4: collect files"
+  cd "${work_dir}" || exit 1;
+
+  cp "${pretrained_models_dir}/${pretrained_model_name}/configuration_qwen.py" "${final_model_dir}/configuration_qwen.py"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/modeling_qwen.py" "${final_model_dir}/modeling_qwen.py"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/qwen_generation_utils.py" "${final_model_dir}/qwen_generation_utils.py"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenization_qwen.py" "${final_model_dir}/tokenization_qwen.py"
+
+fi
