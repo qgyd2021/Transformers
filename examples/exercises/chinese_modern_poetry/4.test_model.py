@@ -55,7 +55,9 @@ def main():
         args.pretrained_model_name_or_path,
         trust_remote_code=True,
         # llama不支持fast
-        use_fast=False if model.config.model_type == "llama" else True
+        use_fast=False if model.config.model_type == "llama" else True,
+        padding_side="left"
+
     )
 
     # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
@@ -77,7 +79,6 @@ def main():
                 text,
                 return_tensors="pt",
                 add_special_tokens=False,
-                padding_side="left"
             ).input_ids.to(args.device)
             bos_token_id = torch.tensor([[tokenizer.bos_token_id]], dtype=torch.long).to(args.device)
             eos_token_id = torch.tensor([[tokenizer.eos_token_id]], dtype=torch.long).to(args.device)
