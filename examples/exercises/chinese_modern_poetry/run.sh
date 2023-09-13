@@ -16,6 +16,7 @@ stop_stage=5
 pretrained_model_supplier=Qwen
 pretrained_model_name=Qwen-7B
 
+final_checkpoint_dir=final
 final_model_name=qwen_7b_modern_poetry
 
 patience=0
@@ -176,7 +177,7 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
 
   python3 3.merge_lora.py \
   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --adapter_name_or_path "${serialization_dir}/final" \
+  --adapter_name_or_path "${serialization_dir}/${final_checkpoint_dir}" \
   --save_directory "${final_model_dir}"
 
 fi

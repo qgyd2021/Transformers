@@ -18,9 +18,7 @@ from project_settings import project_path
 
 def get_args():
     """
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b
-
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
+    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_chinese_modern_poetry
 
     """
     parser = argparse.ArgumentParser()
@@ -49,7 +47,8 @@ def main():
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
         device_map="auto",
-        offload_folder="./offload"
+        # offload_folder="./offload",
+        # empty_init=False
     ).to(args.device).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(
