@@ -48,7 +48,7 @@ def main():
         torch_dtype=torch.float16,
         device_map="auto",
         # offload_folder="./offload",
-        # empty_init=False
+        empty_init=False
     ).to(args.device).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(
