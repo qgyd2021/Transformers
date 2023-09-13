@@ -46,7 +46,8 @@ def main():
         trust_remote_code=True,
         # low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
-        device_map="auto",
+        # device_map="auto",
+        device_map={"": 0},
         # offload_folder="./offload",
     ).to(args.device).eval()
 
