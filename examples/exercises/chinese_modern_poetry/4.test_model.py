@@ -73,7 +73,12 @@ def main():
             input_ids = tokenizer(text, return_tensors="pt", add_special_tokens=False).input_ids.to(args.device)
         # 为了兼容qwen-7b，因为其对eos_token进行tokenize，无法得到对应的eos_token_id
         else:
-            input_ids = tokenizer(text, return_tensors="pt", add_special_tokens=False).input_ids.to(args.device)
+            input_ids = tokenizer(
+                text,
+                return_tensors="pt",
+                add_special_tokens=False,
+                padding_side="left"
+            ).input_ids.to(args.device)
             bos_token_id = torch.tensor([[tokenizer.bos_token_id]], dtype=torch.long).to(args.device)
             eos_token_id = torch.tensor([[tokenizer.eos_token_id]], dtype=torch.long).to(args.device)
             input_ids = torch.concat([bos_token_id, input_ids, eos_token_id], dim=1)
