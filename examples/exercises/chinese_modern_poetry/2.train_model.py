@@ -260,20 +260,20 @@ def main():
         prompt_ = examples.pop('prompt')
         response_ = examples.pop('response')
         utterances = [
-            "<s>{input}</s>".format(input=prompt_),
-            "{target}</s>".format(target=response_)
+            prompt_,
+            response_
         ]
 
         utterances_ids = tokenizer(utterances, add_special_tokens=False).input_ids
 
-        input_ids = list()
-        target_mask = list()
+        input_ids = [tokenizer.bos_token_id]
+        target_mask = [0]
         for i, utterances_id in enumerate(utterances_ids):
-            input_ids += utterances_id
+            input_ids += (utterances_id + [tokenizer.eos_token_id])
+
             if i % 2 == 0:
-                target_mask += [0] * (len(utterances_id))
+                target_mask += [0] * (len(utterances_id) + 1)
             else:
-                input_ids += [tokenizer.eos_token_id]
                 target_mask += [1] * (len(utterances_id) + 1)
 
         assert len(input_ids) == len(target_mask)

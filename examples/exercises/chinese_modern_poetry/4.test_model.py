@@ -19,6 +19,10 @@ from project_settings import project_path
 def get_args():
     """
     python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_chinese_modern_poetry
+    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_modern_poetry
+
+python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/Qwen/Qwen-7B
+
 
     """
     parser = argparse.ArgumentParser()
