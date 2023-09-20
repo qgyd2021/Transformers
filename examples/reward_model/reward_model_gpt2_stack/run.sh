@@ -80,6 +80,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   if [ ! -d "${pretrained_model_name}" ]; then
     git clone "https://huggingface.co/${pretrained_model_supplier:+$pretrained_model_supplier/}${pretrained_model_name}/"
 
+    cd "${pretrained_model_name}" || exit 1;
+
     rm -rf onnx/
     rm -rf .git
     rm -rf .gitattributes
@@ -110,7 +112,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-   python3 2.train_model.py
+   python3 2.train_model.py \
+  --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
 
 fi
-
