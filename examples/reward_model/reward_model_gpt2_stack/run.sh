@@ -78,7 +78,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   cd "${pretrained_models_dir}" || exit 1;
 
   if [ ! -d "${pretrained_model_name}" ]; then
-    git clone "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/"
+    git clone "https://huggingface.co/${pretrained_model_supplier:+$pretrained_model_supplier/}${pretrained_model_name}/"
 
     rm -rf onnx/
     rm -rf .git
