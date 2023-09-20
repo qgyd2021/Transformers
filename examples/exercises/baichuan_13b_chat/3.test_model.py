@@ -27,7 +27,8 @@ def get_args():
     parser.add_argument(
         "--pretrained_model_name_or_path",
         # default="baichuan-inc/Baichuan-13B-Chat",
-        default=(project_path / "trained_models/firefly_chatglm2_6b_intent").as_posix(),
+        # default=(project_path / "trained_models/firefly_chatglm2_6b_intent").as_posix(),
+        default=r"D:\programmer\nlp_pretrained_model\baichuan-inc\Baichuan-13B-Chat",
         type=str
     )
     parser.add_argument("--max_new_tokens", default=512, type=int)
@@ -54,7 +55,9 @@ def main():
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
         device_map="auto",
-        offload_folder="./offload"
+        offload_folder="./offload",
+        offload_state_dict=True,
+        # load_in_4bit=True,
     ).to(args.device).eval()
     generation_config = GenerationConfig.from_pretrained(args.pretrained_model_name_or_path)
     model.generation_config = generation_config

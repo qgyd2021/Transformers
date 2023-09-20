@@ -3,7 +3,6 @@
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos
-# sh run.sh --stage 4 --stop_stage 4 --system_version centos --final_model_name qwen_7b_modern_poetry
 
 # bitsandbytes
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
@@ -14,14 +13,8 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-pretrained_model_supplier=Qwen
-pretrained_model_name=Qwen-7B
-
-final_checkpoint_dir=final
-final_model_name=qwen_7b_modern_poetry
-
-patience=0
-
+pretrained_model_supplier=
+pretrained_model_name=gpt2
 
 # parse options
 while true; do
@@ -52,7 +45,6 @@ while true; do
   esac
 done
 
-
 $verbose && echo "system_version: ${system_version}"
 
 work_dir="$(pwd)"
@@ -61,16 +53,13 @@ cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
 
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
-final_model_dir="${work_dir}/../../../trained_models/${final_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${cache_dir}"
 mkdir -p "${serialization_dir}"
 mkdir -p "${pretrained_models_dir}"
-mkdir -p "${final_model_dir}"
 
 export PYTHONPATH="${work_dir}/../../.."
-
 
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
@@ -84,33 +73,6 @@ elif [ $system_version == "macos" ]; then
 fi
 
 
-function search_best_ckpt() {
-  patience="$1";
-
-  cd "${serialization_dir}" || exit 1
-  last_epoch=$(ls . | \
-               grep "checkpoint-*" | \
-               awk -F'[-]' '{print$2}' | \
-               sort -n | \
-               awk 'END {print}')
-
-  target_dir=
-  if [ -n "${last_epoch}" ]; then
-    target_epoch=$((last_epoch - patience))
-
-    for epoch_idx in $(ls . | grep "checkpoint-*" | awk -F'[-]' '{print$2}' | sort -nr):
-    do
-      if [ "${epoch_idx}" -le "${target_epoch}" ]; then
-        target_dir="checkpoint-${epoch_idx}";
-        break;
-      fi
-    done
-  fi
-
-  echo "${target_dir}"
-}
-
-
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   $verbose && echo "stage 0: download pretrained model"
   cd "${pretrained_models_dir}" || exit 1;
@@ -118,34 +80,18 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   if [ ! -d "${pretrained_model_name}" ]; then
     git clone "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/"
 
+    rm -rf onnx/
     rm -rf .git
     rm -rf .gitattributes
+    rm -rf 64-8bits.tflite
+    rm -rf 64-fp16.tflite
+    rm -rf 64.tflite
     rm -rf flax_model.msgpack
     rm -rf model.safetensors
-  fi
+    rm -rf rust_model.ot
+    rm -rf tf_model.h5
+    rm -rf model.safetensors
 
-  cd "${pretrained_models_dir}/${pretrained_model_name}" || exit 1;
-
-  # pytorch_model.bin
-  if [ -e "pytorch_model.bin" ]; then
-    data_size=$(ls -l pytorch_model.bin | awk '{print $5}')
-    if [ "${data_size}" == "135" ]; then
-      rm -rf pytorch_model.bin;
-    fi
-  fi
-  if [ ! -e "pytorch_model.bin" ]; then
-    wget -c "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/resolve/main/pytorch_model.bin"
-  fi
-
-  # tokenizer.json
-  if [ -e "tokenizer.json" ]; then
-    data_size=$(ls -l tokenizer.json | awk '{print $5}')
-    if [ "${data_size}" == "135" ]; then
-      rm -rf tokenizer.json;
-    fi
-  fi
-  if [ ! -e "tokenizer.json" ]; then
-      wget -c "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/resolve/main/tokenizer.json"
   fi
 
 fi
@@ -164,33 +110,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-   python3 2.train_model.py \
-   --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-   --cache_dir "${cache_dir}" \
-   --output_dir "${serialization_dir}"
+   python3 2.train_model.py
 
 fi
 
-
-if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-  $verbose && echo "stage 3: merge lora"
-  cd "${work_dir}" || exit 1;
-
-  python3 3.merge_lora.py \
-  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --adapter_name_or_path "${serialization_dir}/${final_checkpoint_dir}" \
-  --save_directory "${final_model_dir}"
-
-fi
-
-
-if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-  $verbose && echo "stage 4: collect files"
-  cd "${work_dir}" || exit 1;
-
-  cp "${pretrained_models_dir}/${pretrained_model_name}/configuration_qwen.py" "${final_model_dir}/configuration_qwen.py"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/modeling_qwen.py" "${final_model_dir}/modeling_qwen.py"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/qwen_generation_utils.py" "${final_model_dir}/qwen_generation_utils.py"
-  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenization_qwen.py" "${final_model_dir}/tokenization_qwen.py"
-
-fi

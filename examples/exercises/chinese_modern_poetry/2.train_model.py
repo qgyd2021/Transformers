@@ -59,7 +59,7 @@ def get_args():
     parser.add_argument("--learning_rate", default=2e-4, type=float)
     parser.add_argument("--weight_decay", default=0, type=float)
     parser.add_argument("--max_grad_norm", default=0.3, type=float)
-    parser.add_argument("--num_train_epochs", default=3.0, type=float)
+    parser.add_argument("--num_train_epochs", default=1.0, type=float)
     parser.add_argument("--max_steps", default=-1, type=int)
     parser.add_argument("--lr_scheduler_type", default="constant_with_warmup", type=str)
     parser.add_argument("--warmup_ratio", default=0.0, type=float)
