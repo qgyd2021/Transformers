@@ -114,5 +114,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
   python3 2.train_model.py \
   --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
+  --output_dir "${serialization_dir}"
 
 fi

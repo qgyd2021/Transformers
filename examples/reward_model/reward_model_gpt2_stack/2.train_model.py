@@ -311,7 +311,8 @@ def main():
     trainer.train(args.resume_from_checkpoint)
 
     print("Saving last checkpoint of the model")
-    model.save_pretrained("last_checkpoint")
+    last_checkpoint = os.path.join(args.output_dir, "last_checkpoint")
+    model.save_pretrained(last_checkpoint)
     return
 
 
