@@ -112,7 +112,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   $verbose && echo "stage 2: train model"
   cd "${work_dir}" || exit 1;
 
-   python3 2.train_model.py \
+  python3 2.train_model.py \
   --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
 
 fi
