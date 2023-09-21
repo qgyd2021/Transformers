@@ -16,6 +16,9 @@ stop_stage=5
 pretrained_model_supplier=
 pretrained_model_name=gpt2
 
+last_checkpoint_dir=last_checkpoint
+last_model_name=reward_model_gpt2_stack
+
 # parse options
 while true; do
   [ -z "${1:-}" ] && break;  # break if there are no arguments
@@ -53,11 +56,13 @@ cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
 
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
+last_checkpoint_dir="${work_dir}/../../../trained_models/${last_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${cache_dir}"
 mkdir -p "${serialization_dir}"
 mkdir -p "${pretrained_models_dir}"
+mkdir -p "${last_checkpoint_dir}"
 
 export PYTHONPATH="${work_dir}/../../.."
 
@@ -114,6 +119,19 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
   python3 2.train_model.py \
   --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
+  --last_checkpoint "${last_checkpoint_dir}" \
   --output_dir "${serialization_dir}"
+
+fi
+
+
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+  $verbose && echo "stage 3: merge lora"
+  cd "${work_dir}" || exit 1;
+
+  python3 3.merge_lora.py \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --adapter_name_or_path "${serialization_dir}/${last_checkpoint_dir}" \
+  --save_directory "${final_model_dir}"
 
 fi

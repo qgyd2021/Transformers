@@ -49,6 +49,9 @@ class ScriptArguments:
 
     # model
     model_name: Optional[str] = field(default="gpt2")
+    num_labels: Optional[int] = field(default=1)
+    last_checkpoint: Optional[str] = field(default="last_checkpoint")
+
     # tokenizer
     tokenizer_name: Optional[str] = field(default=None)
 
@@ -219,8 +222,7 @@ def main():
     # model
     model = AutoModelForSequenceClassification.from_pretrained(
         args.model_name,
-        num_labels=1,
-        torch_dtype=torch.bfloat16
+        num_labels=args.num_labels,
     )
 
     peft_config = LoraConfig(
@@ -311,7 +313,7 @@ def main():
     trainer.train(args.resume_from_checkpoint)
 
     print("Saving last checkpoint of the model")
-    last_checkpoint = os.path.join(args.output_dir, "last_checkpoint")
+    last_checkpoint = os.path.join(args.output_dir, args.last_checkpoint)
     model.save_pretrained(last_checkpoint)
     return
 

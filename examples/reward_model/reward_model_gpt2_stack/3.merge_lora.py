@@ -33,6 +33,8 @@ def get_args():
     )
     parser.add_argument("--save_directory", default="save_directory", type=str)
 
+    parser.add_argument("--num_labels", default="num_labels", type=int)
+
     args = parser.parse_args()
     return args
 
@@ -53,7 +55,7 @@ def main():
 
     model = AutoModelForSequenceClassification.from_pretrained(
         args.pretrained_model_name_or_path,
-        num_labels=1,
+        num_labels=args.num_labels,
     )
 
     model = PeftModel.from_pretrained(model, args.adapter_name_or_path, device_map={"": "cpu"})
