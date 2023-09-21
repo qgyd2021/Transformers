@@ -23,3 +23,4 @@ speechbrain
 bitsandbytes-windows==0.37.5
 tiktoken==0.5.1
 trl==0.7.1
+scikit-learn==1.2.2

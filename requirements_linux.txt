@@ -18,3 +18,4 @@ torch==1.13.0
 python-dotenv==1.0.0
 mpi4py==3.1.4
 evaluate==0.4.0
+scikit-learn==1.2.2
