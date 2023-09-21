@@ -17,7 +17,7 @@ pretrained_model_supplier=
 pretrained_model_name=gpt2
 
 last_checkpoint_dir=last_checkpoint
-last_model_name=reward_model_gpt2_stack
+final_model_name=reward_model_gpt2_stack
 
 # parse options
 while true; do
@@ -56,13 +56,13 @@ cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
 
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
-last_checkpoint_dir="${work_dir}/../../../trained_models/${last_model_name}";
+final_model_dir="${work_dir}/../../../trained_models/${final_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${cache_dir}"
 mkdir -p "${serialization_dir}"
 mkdir -p "${pretrained_models_dir}"
-mkdir -p "${last_checkpoint_dir}"
+mkdir -p "${final_model_dir}"
 
 export PYTHONPATH="${work_dir}/../../.."
 
@@ -118,6 +118,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cd "${work_dir}" || exit 1;
 
   python3 2.train_model.py \
+  --cache_dir "${cache_dir}" \
   --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
   --last_checkpoint "${last_checkpoint_dir}" \
   --output_dir "${serialization_dir}"

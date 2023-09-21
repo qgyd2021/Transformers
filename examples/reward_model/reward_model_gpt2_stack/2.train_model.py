@@ -47,6 +47,9 @@ class ScriptArguments:
     train_subset: Optional[int] = field(default=-1)
     eval_subset: Optional[int] = field(default=10000)
 
+    # cache
+    cache_dir: str = field(default="cache_dir")
+
     # model
     model_name: Optional[str] = field(default="gpt2")
     num_labels: Optional[int] = field(default=1)
@@ -271,11 +274,11 @@ def main():
         batched=True,
         num_proc=os.cpu_count() // 2,
         remove_columns=original_columns,
+        cache_file_name=os.path.join(args.cache_dir, 'train.cache')
     )
     train_dataset = train_dataset.filter(
         lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length,
         num_proc=os.cpu_count() // 2,
-
     )
 
     eval_dataset = eval_dataset.map(
@@ -283,11 +286,11 @@ def main():
         batched=True,
         num_proc=os.cpu_count() // 2,
         remove_columns=original_columns,
+        cache_file_name=os.path.join(args.cache_dir, 'train.cache')
     )
     eval_dataset = eval_dataset.filter(
         lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length,
         num_proc=os.cpu_count() // 2,
-
     )
 
     # Define the metric that we'll use for validation.
