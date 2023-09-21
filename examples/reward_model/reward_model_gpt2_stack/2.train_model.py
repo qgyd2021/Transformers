@@ -106,7 +106,7 @@ def get_args():
 @dataclass
 class RewardDataCollatorWithPadding:
     tokenizer: PreTrainedTokenizerBase
-    padding: Union[bool, str, PaddingStrategy] = True
+    padding: Union[bool, str, PaddingStrategy] = PaddingStrategy.MAX_LENGTH
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
     return_tensors: str = "pt"
@@ -273,7 +273,9 @@ def main():
         remove_columns=original_columns,
     )
     train_dataset = train_dataset.filter(
-        lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length
+        lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length,
+        num_proc=os.cpu_count() // 2,
+
     )
 
     eval_dataset = eval_dataset.map(
@@ -283,7 +285,9 @@ def main():
         remove_columns=original_columns,
     )
     eval_dataset = eval_dataset.filter(
-        lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length
+        lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length,
+        num_proc=os.cpu_count() // 2,
+
     )
 
     # Define the metric that we'll use for validation.
@@ -304,7 +308,9 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics,
-        data_collator=RewardDataCollatorWithPadding(tokenizer=tokenizer, max_length=args.max_length),
+        data_collator=RewardDataCollatorWithPadding(tokenizer=tokenizer,
+                                                    padding="max_length",
+                                                    max_length=args.max_length),
     )
 
     if args.eval_first_step:
