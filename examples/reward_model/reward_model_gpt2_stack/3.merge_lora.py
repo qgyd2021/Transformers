@@ -3,6 +3,7 @@
 import argparse
 
 from peft import PeftModel
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 import torch
 """
@@ -13,9 +14,9 @@ import torch
 def get_args():
     """
     python3 3.merge_lora.py \
-    --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/YeungNLP/firefly-chatglm2-6b \
-    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/exercises/firefly_chatglm2_6b_intent/serialization_dir/final \
-    --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/firefly_chatglm2_6b_intent
+    --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/gpt2 \
+    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/reward_model/reward_model_gpt2_stack/gpt2_peft_stack-exchange-paired_rmts__100000_2e-05_peft_last_checkpoint \
+    --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/reward_model_gpt2_stack
 
     """
     parser = argparse.ArgumentParser()
@@ -50,14 +51,11 @@ def main():
         use_fast=False if config.model_type == 'llama' else True
     )
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = AutoModelForSequenceClassification.from_pretrained(
         args.pretrained_model_name_or_path,
-        trust_remote_code=True,
-        low_cpu_mem_usage=True,
-        torch_dtype=torch.float16,
-        # device_map='auto',
-        device_map={"": "cpu"}
+        num_labels=1,
     )
+
     model = PeftModel.from_pretrained(model, args.adapter_name_or_path, device_map={"": "cpu"})
     model = model.merge_and_unload()
 
