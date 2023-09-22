@@ -210,7 +210,7 @@ def main():
         save_steps=args.save_steps,
         save_total_limit=args.save_total_limit,
         remove_unused_columns=args.remove_unused_columns,
-        label_names=args.label_names,
+        label_names=list() if args.label_names is None else args.label_names,
         deepspeed=args.deepspeed,
         optim=args.optim,
         report_to=args.report_to,
