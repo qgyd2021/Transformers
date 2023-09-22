@@ -286,7 +286,7 @@ def main():
         batched=True,
         num_proc=os.cpu_count() // 2,
         remove_columns=original_columns,
-        cache_file_name=os.path.join(args.cache_dir, 'train.cache')
+        cache_file_name=os.path.join(args.cache_dir, 'eval.cache')
     )
     eval_dataset = eval_dataset.filter(
         lambda x: len(x["input_ids_j"]) <= args.max_length and len(x["input_ids_k"]) <= args.max_length,
