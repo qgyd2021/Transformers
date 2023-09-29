@@ -15,7 +15,7 @@ def get_args():
     """
     python3 3.merge_lora.py \
     --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/gpt2 \
-    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/reward_model/reward_model_gpt2_stack/gpt2_peft_stack-exchange-paired_rmts__100000_2e-05_peft_last_checkpoint \
+    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/reward_model/reward_model_gpt2_stack/file_dir/serialization_dir/last_checkpoint \
     --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/reward_model_gpt2_stack
 
     """
@@ -33,7 +33,7 @@ def get_args():
     )
     parser.add_argument("--save_directory", default="save_directory", type=str)
 
-    parser.add_argument("--num_labels", default="num_labels", type=int)
+    parser.add_argument("--num_labels", default=1, type=int)
 
     args = parser.parse_args()
     return args

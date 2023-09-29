@@ -11,6 +11,15 @@ https://huggingface.co/blog/trl-peft
 https://medium.com/towards-generative-ai/reward-model-training-2209d1befb5f
 
 https://github.com/huggingface/trl/blob/main/examples/research_projects/stack_llama/scripts/reward_modeling.py
+
+
+# Tensorboard View
+tensorboard \
+--logdir=file_dir/serialization_dir/runs/Sep22_09-36-16_nlp \
+--port=8008 \
+--bind_all
+
+http://10.75.27.247:8008/
 """
 import argparse
 from dataclasses import dataclass, field

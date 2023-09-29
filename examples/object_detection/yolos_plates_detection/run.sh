@@ -3,10 +3,6 @@
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos
-# sh run.sh --stage 3 --stop_stage 3 --system_version centos
-
-# bitsandbytes
-export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 # params
 system_version="windows";
@@ -14,11 +10,8 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-pretrained_model_supplier=
-pretrained_model_name=gpt2
-
-last_checkpoint_dir=last_checkpoint
-final_model_name=reward_model_gpt2_stack
+pretrained_model_supplier=hustvl
+pretrained_model_name=yolos-small
 
 # parse options
 while true; do
@@ -57,13 +50,11 @@ cache_dir="${file_dir}/cache_dir"
 serialization_dir="${file_dir}/serialization_dir"
 
 pretrained_models_dir="${work_dir}/../../../pretrained_models/huggingface/${pretrained_model_supplier}"
-final_model_dir="${work_dir}/../../../trained_models/${final_model_name}";
 
 mkdir -p "${file_dir}"
 mkdir -p "${cache_dir}"
 mkdir -p "${serialization_dir}"
 mkdir -p "${pretrained_models_dir}"
-mkdir -p "${final_model_dir}"
 
 export PYTHONPATH="${work_dir}/../../.."
 
@@ -75,9 +66,8 @@ elif [ $system_version == "centos" ]; then
 elif [ $system_version == "ubuntu" ]; then
   alias python3='/usr/local/miniconda3/envs/Transformers/bin/python3'
 elif [ $system_version == "macos" ]; then
-  alias python3='/Users/honey/PycharmProjects/virtualenv/TrainLLM/bin/python'
+  alias python3='/Users/honey/PycharmProjects/virtualenv/Transformers/bin/python'
 fi
-
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   $verbose && echo "stage 0: download pretrained model"
@@ -88,52 +78,8 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 
     cd "${pretrained_model_name}" || exit 1;
 
-    rm -rf onnx/
     rm -rf .git
     rm -rf .gitattributes
-    rm -rf 64-8bits.tflite
-    rm -rf 64-fp16.tflite
-    rm -rf 64.tflite
-    rm -rf flax_model.msgpack
-    rm -rf model.safetensors
-    rm -rf rust_model.ot
-    rm -rf tf_model.h5
-    rm -rf model.safetensors
-
   fi
-
-fi
-
-
-if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-  $verbose && echo "stage 1: prepare data"
-  cd "${work_dir}" || exit 1;
-
-  python3 1.prepare_data.py
-
-fi
-
-
-if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
-  $verbose && echo "stage 2: train model"
-  cd "${work_dir}" || exit 1;
-
-  python3 2.train_model.py \
-  --cache_dir "${cache_dir}" \
-  --model_name "${pretrained_models_dir}/${pretrained_model_name}" \
-  --last_checkpoint "${last_checkpoint_dir}" \
-  --output_dir "${serialization_dir}"
-
-fi
-
-
-if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-  $verbose && echo "stage 3: merge lora"
-  cd "${work_dir}" || exit 1;
-
-  python3 3.merge_lora.py \
-  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --adapter_name_or_path "${serialization_dir}/${last_checkpoint_dir}" \
-  --save_directory "${final_model_dir}"
 
 fi
