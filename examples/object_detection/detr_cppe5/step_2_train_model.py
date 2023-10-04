@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 import os
 from pathlib import Path
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 # from project_settings import project_path
 # project_path = os.path.abspath(os.path.dirname(__file__))
@@ -35,6 +35,8 @@ from transformers.models.auto.processing_auto import AutoImageProcessor
 from transformers.models.auto.modeling_auto import AutoModelForObjectDetection
 from transformers import TrainingArguments
 from transformers import Trainer
+from transformers.trainer_utils import EvalPrediction, IntervalStrategy
+from transformers.trainer_callback import EarlyStoppingCallback
 
 
 @dataclass
@@ -46,16 +48,20 @@ class ScriptArguments:
     # dataset_cache_dir: str = field(default="hub_datasets")
 
     # model
-    pretrained_model_name_or_path: str = field(default="facebook/detr-resnet-50")
+    # pretrained_model_name_or_path: str = field(default="facebook/detr-resnet-50")
+    pretrained_model_name_or_path: str = field(default="qgyd2021/detr_cppe5_object_detection")
 
     # training_args
     output_dir: str = field(default="output_dir")
+    evaluation_strategy: Union[IntervalStrategy, str] = field(default="steps")
     per_device_train_batch_size: int = field(default=8)
     gradient_accumulation_steps: int = field(default=4)
-    num_train_epochs: float = field(default=30)
+    # 150
+    num_train_epochs: float = field(default=200)
     fp16: bool = field(default=True)
     save_steps: int = field(default=200)
     logging_steps: int = field(default=50)
+    eval_steps: Optional[float] = field(default=200)
     learning_rate: float = field(default=1e-5)
     weight_decay: float = field(default=1e-4)
     save_total_limit: int = field(default=2)
@@ -120,6 +126,7 @@ def train_model(local_rank, world_size, args):
         cache_dir=args.dataset_cache_dir
     )
     train_dataset = dataset_dict["train"]
+    valid_dataset = dataset_dict["test"]
 
     remove_idx = [590, 821, 822, 875, 876, 878, 879]
     keep = [i for i in range(len(train_dataset)) if i not in remove_idx]
@@ -165,6 +172,7 @@ def train_model(local_rank, world_size, args):
         return image_processor.__call__(images=images, annotations=targets, return_tensors="pt")
 
     train_dataset = train_dataset.with_transform(transform_aug_annotation)
+    valid_dataset = valid_dataset.with_transform(transform_aug_annotation)
 
     def collate_fn(batch):
         pixel_values = [item["pixel_values"] for item in batch]
@@ -186,6 +194,7 @@ def train_model(local_rank, world_size, args):
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,
+        evaluation_strategy=args.evaluation_strategy,
         per_device_train_batch_size=args.per_device_train_batch_size,
         num_train_epochs=args.num_train_epochs,
         fp16=args.fp16,
@@ -200,6 +209,10 @@ def train_model(local_rank, world_size, args):
         hub_model_id=args.hub_model_id,
         hub_strategy=args.hub_strategy,
         local_rank=local_rank,
+        eval_steps=args.eval_steps,
+        load_best_model_at_end=True,
+        metric_for_best_model="loss",
+        greater_is_better=False,
         ddp_backend="nccl",
         # fsdp="auto_wrap",
     )
@@ -223,12 +236,18 @@ def train_model(local_rank, world_size, args):
     environ = re.sub(r"[\u0020]{4,}", "", environ)
     print(environ)
 
+    callbacks = [
+        EarlyStoppingCallback(early_stopping_patience=5)
+    ]
+
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=collate_fn,
         train_dataset=train_dataset,
+        eval_dataset=valid_dataset,
         tokenizer=image_processor,
+        callbacks=callbacks
     )
     trainer.train()
     trainer.push_to_hub()
