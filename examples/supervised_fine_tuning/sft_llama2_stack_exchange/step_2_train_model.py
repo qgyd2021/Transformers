@@ -117,10 +117,10 @@ def create_datasets(tokenizer, args):
         data_dir=args.dataset_data_dir,
         split=args.dataset_split,
         use_auth_token=True,
-        num_proc=args.num_workers if not args.streaming else None,
-        streaming=args.streaming,
+        num_proc=args.num_workers if not args.dataset_streaming else None,
+        streaming=args.dataset_streaming,
     )
-    if args.streaming:
+    if args.dataset_streaming:
         print("Loading the dataset in streaming mode")
         valid_dataset = dataset.take(args.valid_dataset_size)
         train_dataset = dataset.skip(args.valid_dataset_size)
