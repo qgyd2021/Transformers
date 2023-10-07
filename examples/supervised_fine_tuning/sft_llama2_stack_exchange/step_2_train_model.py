@@ -52,11 +52,12 @@ class ScriptArguments:
     gradient_accumulation_steps: Optional[int] = field(default=4)
     learning_rate: Optional[float] = field(default=1e-4)
     weight_decay: Optional[float] = field(default=0.05)
-    max_steps: Optional[int] = field(default=10000)
+    max_steps: Optional[int] = field(default=5000)
     lr_scheduler_type: Optional[str] = field(default="cosine")
-    warmup_steps: Optional[int] = field(default=1000)
-    logging_steps: Optional[int] = field(default=500)
-    save_steps: Optional[int] = field(default=500)
+    warmup_steps: Optional[int] = field(default=500)
+    logging_steps: Optional[int] = field(default=100)
+    save_steps: Optional[int] = field(default=100)
+    save_total_limit: Optional[int] = field(default=2)
     bf16: Optional[bool] = field(default=False)
     fp16: Optional[bool] = field(default=True)
     remove_unused_columns: Optional[bool] = field(default=True)
@@ -202,6 +203,7 @@ def main():
         warmup_steps=args.warmup_steps,
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
+        save_total_limit=args.save_total_limit,
         bf16=args.bf16,
         remove_unused_columns=args.remove_unused_columns,
         optim=args.optim,
