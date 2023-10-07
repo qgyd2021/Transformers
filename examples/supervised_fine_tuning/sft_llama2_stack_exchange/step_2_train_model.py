@@ -27,11 +27,11 @@ class ScriptArguments:
     dataset_path: Optional[str] = field(default="lvwerra/stack-exchange-paired")
     dataset_data_dir: Optional[str] = field(default="data/finetune")
     dataset_split: Optional[str] = field(default="train")
-    dataset_streaming: Optional[bool] = field(default=True)
+    dataset_streaming: Optional[bool] = field(default=False)
 
     num_workers: Optional[int] = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
-    valid_dataset_size: Optional[int] = field(default=4000)
-    shuffle_buffer_size: Optional[int] = field(default=5000)
+    valid_dataset_size: Optional[int] = field(default=10000)
+    shuffle_buffer_size: Optional[int] = field(default=20000)
 
     # ConstantLengthDataset
     seq_length: Optional[int] = field(default=1024)
@@ -40,9 +40,9 @@ class ScriptArguments:
     model_name_or_path: Optional[str] = field(default="meta-llama/Llama-2-7b-hf")
 
     # lora
+    lora_rank: Optional[int] = field(default=8)
     lora_alpha: Optional[float] = field(default=16)
     lora_dropout: Optional[float] = field(default=0.05)
-    lora_r: Optional[int] = field(default=8)
 
     # train args
     output_dir: Optional[str] = field(default="output_dir")
@@ -175,7 +175,7 @@ def main():
     base_model.config.use_cache = False
 
     peft_config = LoraConfig(
-        r=args.lora_r,
+        r=args.lora_rank,
         lora_alpha=args.lora_alpha,
         lora_dropout=args.lora_dropout,
         target_modules=["q_proj", "v_proj"],
