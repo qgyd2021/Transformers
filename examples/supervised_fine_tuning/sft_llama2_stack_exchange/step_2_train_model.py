@@ -183,7 +183,7 @@ def main():
         task_type="CAUSAL_LM",
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"  # Fix weird overflow issue with fp16 training
 
