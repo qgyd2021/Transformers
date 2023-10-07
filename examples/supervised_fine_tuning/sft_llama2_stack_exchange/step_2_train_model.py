@@ -27,7 +27,7 @@ class ScriptArguments:
     dataset_path: Optional[str] = field(default="lvwerra/stack-exchange-paired")
     dataset_data_dir: Optional[str] = field(default="data/finetune")
     dataset_split: Optional[str] = field(default="train")
-    dataset_streaming: Optional[bool] = field(default=False)
+    dataset_streaming: Optional[bool] = field(default=True)
 
     num_workers: Optional[int] = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
     valid_dataset_size: Optional[int] = field(default=10000)
@@ -51,7 +51,7 @@ class ScriptArguments:
     gradient_accumulation_steps: Optional[int] = field(default=2)
     learning_rate: Optional[float] = field(default=1e-4)
     weight_decay: Optional[float] = field(default=0.05)
-    max_steps: Optional[int] = field(default=500)
+    max_steps: Optional[int] = field(default=500000)
     lr_scheduler_type: Optional[str] = field(default="cosine")
     warmup_steps: Optional[int] = field(default=100)
     logging_steps: Optional[int] = field(default=10)
