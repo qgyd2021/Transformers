@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # sh run.sh --stage -1 --stop_stage 2 --system_version centos
+# sh run.sh --stage 0 --stop_stage 0 --system_version centos
 
 # params
 system_version="windows";
@@ -79,8 +80,17 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 
     rm -rf .git
     rm -rf .gitattributes
-    rm -rf flax_model.msgpack
-    rm -rf model.safetensors
+
   fi
+
+fi
+
+
+if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+  $verbose && echo "stage 2: train model"
+  cd "${work_dir}" || exit 1;
+
+  python3 step_2_train_model.py \
+  --model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
 
 fi

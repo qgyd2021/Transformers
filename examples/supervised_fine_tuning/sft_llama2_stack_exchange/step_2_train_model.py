@@ -30,8 +30,8 @@ class ScriptArguments:
     dataset_streaming: Optional[bool] = field(default=True)
 
     num_workers: Optional[int] = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
-    valid_dataset_size: Optional[int] = field(default=4000, metadata={"help": "the size of the validation set"})
-    shuffle_buffer_size: Optional[int] = field(default=5000, metadata={"help": "the shuffle buffer size"})
+    valid_dataset_size: Optional[int] = field(default=4000)
+    shuffle_buffer_size: Optional[int] = field(default=5000)
 
     # ConstantLengthDataset
     seq_length: Optional[int] = field(default=1024)
@@ -40,9 +40,9 @@ class ScriptArguments:
     model_name_or_path: Optional[str] = field(default="meta-llama/Llama-2-7b-hf")
 
     # lora
-    lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
-    lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
-    lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
+    lora_alpha: Optional[float] = field(default=16)
+    lora_dropout: Optional[float] = field(default=0.05)
+    lora_r: Optional[int] = field(default=8)
 
     # train args
     output_dir: Optional[str] = field(default="output_dir")
@@ -50,7 +50,7 @@ class ScriptArguments:
     per_device_eval_batch_size: Optional[int] = field(default=1)
     gradient_accumulation_steps: Optional[int] = field(default=2)
     learning_rate: Optional[float] = field(default=1e-4)
-    weight_decay: Optional[float] = field(default=0.05, metadata={"help": "the weight decay"})
+    weight_decay: Optional[float] = field(default=0.05)
     max_steps: Optional[int] = field(default=500)
     lr_scheduler_type: Optional[str] = field(default="cosine")
     warmup_steps: Optional[int] = field(default=100)
@@ -59,12 +59,10 @@ class ScriptArguments:
     bf16: Optional[bool] = field(default=False)
     fp16: Optional[bool] = field(default=True)
     remove_unused_columns: Optional[bool] = field(default=True)
-    optim: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
+    optim: Optional[str] = field(default="paged_adamw_32bit")
     group_by_length: Optional[bool] = field(default=False)
     report_to: Optional[str] = field(default="tensorboard")
-    gradient_checkpointing: Optional[bool] = field(
-        default=True, metadata={"help": "whether to use gradient checkpointing"}
-    )
+    gradient_checkpointing: Optional[bool] = field(default=True)
 
     # trainer
     packing: Optional[bool] = field(default=True, metadata={"help": "whether to use packing for SFTTrainer"})
