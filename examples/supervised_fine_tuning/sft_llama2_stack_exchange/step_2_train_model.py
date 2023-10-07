@@ -23,6 +23,7 @@ from trl.trainer import ConstantLengthDataset
 
 @dataclass
 class ScriptArguments:
+
     # dataset
     dataset_path: Optional[str] = field(default="lvwerra/stack-exchange-paired")
     dataset_data_dir: Optional[str] = field(default="data/finetune")
@@ -46,16 +47,16 @@ class ScriptArguments:
 
     # train args
     output_dir: Optional[str] = field(default="output_dir")
-    per_device_train_batch_size: Optional[int] = field(default=4)
+    per_device_train_batch_size: Optional[int] = field(default=8)
     per_device_eval_batch_size: Optional[int] = field(default=1)
-    gradient_accumulation_steps: Optional[int] = field(default=2)
+    gradient_accumulation_steps: Optional[int] = field(default=4)
     learning_rate: Optional[float] = field(default=1e-4)
     weight_decay: Optional[float] = field(default=0.05)
-    max_steps: Optional[int] = field(default=500000)
+    max_steps: Optional[int] = field(default=10000)
     lr_scheduler_type: Optional[str] = field(default="cosine")
-    warmup_steps: Optional[int] = field(default=100)
-    logging_steps: Optional[int] = field(default=10)
-    save_steps: Optional[int] = field(default=10)
+    warmup_steps: Optional[int] = field(default=1000)
+    logging_steps: Optional[int] = field(default=500)
+    save_steps: Optional[int] = field(default=500)
     bf16: Optional[bool] = field(default=False)
     fp16: Optional[bool] = field(default=True)
     remove_unused_columns: Optional[bool] = field(default=True)
