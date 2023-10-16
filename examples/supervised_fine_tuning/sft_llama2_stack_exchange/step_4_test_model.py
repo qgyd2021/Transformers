@@ -24,7 +24,7 @@ def get_args():
         default=(project_path / "trained_models/bloom-1b4-sft").as_posix(),
         type=str,
     )
-    parser.add_argument('--device', default='auto', type=str)
+    parser.add_argument('--device', default="cuda" if torch.cuda.is_available() else "cpu", type=str)
 
     args = parser.parse_args()
     return args
