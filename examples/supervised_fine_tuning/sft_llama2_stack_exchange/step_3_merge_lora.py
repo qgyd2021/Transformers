@@ -13,10 +13,10 @@ import torch
 
 def get_args():
     """
-    python3 step_3_merge_lora.py \
-    --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/NousResearch/Llama-2-7b-hf \
-    --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/supervised_fine_tuning/sft_llama2_stack_exchange/file_dir/serialization_dir/checkpoint-1600 \
-    --save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
+python3 step_3_merge_lora.py \
+--pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/NousResearch/Llama-2-7b-hf \
+--adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/supervised_fine_tuning/sft_llama2_stack_exchange/file_dir/serialization_dir/checkpoint-1600 \
+--save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
 
     """
     parser = argparse.ArgumentParser()
@@ -51,14 +51,8 @@ def main():
         use_fast=False if config.model_type == 'llama' else True
     )
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
-    )
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
-        quantization_config=bnb_config,
         trust_remote_code=True,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
