@@ -16,7 +16,7 @@ def get_args():
 python3 step_3_merge_lora.py \
 --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/NousResearch/Llama-2-7b-hf \
 --adapter_name_or_path /data/tianxing/PycharmProjects/Transformers/examples/supervised_fine_tuning/sft_llama2_stack_exchange/file_dir/serialization_dir/checkpoint-1600 \
---save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
+--save_directory /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange2
 
     """
     parser = argparse.ArgumentParser()
@@ -63,7 +63,7 @@ def main():
     model = model.merge_and_unload()
 
     tokenizer.save_pretrained(args.save_directory)
-    model.save_pretrained(args.save_directory)
+    model.save_pretrained(args.save_directory, max_shard_size="2GB")
     return
 
 
