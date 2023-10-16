@@ -49,7 +49,6 @@ def main():
         # llama不支持fast
         use_fast=False if model.config.model_type == "llama" else True,
         padding_side="left"
-
     )
 
     text = input('User: ')

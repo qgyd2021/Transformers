@@ -62,7 +62,7 @@ def main():
     model = model.merge_and_unload()
 
     tokenizer.save_pretrained(args.save_directory)
-    model.save_pretrained(args.save_directory)
+    model.save_pretrained(args.save_directory, max_shard_size="2GB")
     return
 
 

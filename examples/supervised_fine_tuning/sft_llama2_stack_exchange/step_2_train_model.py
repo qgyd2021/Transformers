@@ -52,7 +52,7 @@ class ScriptArguments:
     gradient_accumulation_steps: Optional[int] = field(default=4)
     learning_rate: Optional[float] = field(default=1e-4)
     weight_decay: Optional[float] = field(default=0.05)
-    max_steps: Optional[int] = field(default=5000)
+    max_steps: Optional[int] = field(default=1600)
     lr_scheduler_type: Optional[str] = field(default="cosine")
     warmup_steps: Optional[int] = field(default=500)
     logging_steps: Optional[int] = field(default=100)
