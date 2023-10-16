@@ -65,7 +65,7 @@ class ScriptArguments:
     group_by_length: Optional[bool] = field(default=False)
     report_to: Optional[str] = field(default="tensorboard")
     resume_from_checkpoint: Optional[str] = field(
-        default="/data/tianxing/PycharmProjects/Transformers/examples/supervised_fine_tuning/sft_llama2_stack_exchange/file_dir/serialization_dir/checkpoint-1600"
+        default="checkpoint-1600"
     )
     gradient_checkpointing: Optional[bool] = field(default=True)
 
