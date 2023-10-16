@@ -51,9 +51,13 @@ def main():
         padding_side="left"
 
     )
+    print(tokenizer)
+    print(tokenizer.bos_token)
+    print(tokenizer.eos_token)
 
     text = input('User: ')
     while True:
+        text = text.strip()
         text = 'Question: {}\n\nAnswer: '.format(text)
         input_ids = tokenizer(text, return_tensors="pt").input_ids
         input_ids = input_ids.to(args.device)
@@ -61,6 +65,13 @@ def main():
                                  repetition_penalty=1.2, eos_token_id=tokenizer.eos_token_id)
         rets = tokenizer.batch_decode(outputs)
         output = rets[0]
+        output = output.strip()
+        output = output.replace(text, "")
+        output = output.replace(tokenizer.bos_token, "")
+        output = output.replace(tokenizer.eos_token, "")
+
+        # output = output.strip().replace('</s>', "")
+
         print("LLM: {}".format(output))
         text = input('User: ')
 
