@@ -44,7 +44,7 @@ def main():
     ).to(args.device).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(
-        args.pretrained_model_name_or_path,
+        args.trained_model_path,
         trust_remote_code=True,
         # llama不支持fast
         use_fast=False if model.config.model_type == "llama" else True,
