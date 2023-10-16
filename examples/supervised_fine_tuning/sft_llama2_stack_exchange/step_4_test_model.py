@@ -14,7 +14,9 @@ from project_settings import project_path
 
 
 def get_args():
-
+    """
+    python3 step_4_test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--trained_model_path',
@@ -32,7 +34,7 @@ def main():
     args = get_args()
 
     model = AutoModelForCausalLM.from_pretrained(
-        args.pretrained_model_name_or_path,
+        args.trained_model_path,
         trust_remote_code=True,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
