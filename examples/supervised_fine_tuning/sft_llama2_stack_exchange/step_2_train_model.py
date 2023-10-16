@@ -64,6 +64,9 @@ class ScriptArguments:
     optim: Optional[str] = field(default="paged_adamw_32bit")
     group_by_length: Optional[bool] = field(default=False)
     report_to: Optional[str] = field(default="tensorboard")
+    resume_from_checkpoint: Optional[str] = field(
+        default="/data/tianxing/PycharmProjects/Transformers/examples/supervised_fine_tuning/sft_llama2_stack_exchange/file_dir/serialization_dir/checkpoint-1600"
+    )
     gradient_checkpointing: Optional[bool] = field(default=True)
 
     # trainer
@@ -209,6 +212,7 @@ def main():
         optim=args.optim,
         group_by_length=args.group_by_length,
         report_to=args.report_to,
+        resume_from_checkpoint=args.resume_from_checkpoint,
         gradient_checkpointing=args.gradient_checkpointing,
         run_name="sft_llama2",
     )
