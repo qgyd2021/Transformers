@@ -4,18 +4,24 @@ import argparse
 import os
 import sys
 
+from project_settings import project_path
+
+hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
+
+os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
+
 pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, '../../../'))
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from project_settings import project_path
-
 
 def get_args():
     """
     python3 step_4_test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
+    python3 step_4_test_model.py --trained_model_path /data/tianxing/PycharmProjects/Transformers/trained_models/sft_llama2_stack_exchange
+    python3 step_4_test_model.py --trained_model_path qgyd2021/sft_llama2_stack_exchange
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
