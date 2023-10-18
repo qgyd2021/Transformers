@@ -4,14 +4,14 @@ import argparse
 import os
 import sys
 
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, '../../../'))
+
 from project_settings import project_path
 
 hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
-
-pwd = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(pwd, '../../../'))
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
