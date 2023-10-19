@@ -48,8 +48,7 @@ class ScriptArguments:
     output_dir: Optional[str] = field(default="./results", metadata={"help": "the output directory"})
 
     model_name_or_path: Optional[str] = field(
-        default="../sft/results/final_checkpoint",
-        metadata={"help": "the location of the SFT model name or path"},
+        default="qgyd2021/sft_llama2_stack_exchange",
     )
     learning_rate: Optional[float] = field(default=5e-4, metadata={"help": "optimizer learning rate"})
     lr_scheduler_type: Optional[str] = field(default="cosine", metadata={"help": "the lr scheduler type"})
@@ -99,22 +98,26 @@ def get_args():
     return args
 
 
-def main():
-    args = get_args()
-
-    # dataset
-    train_dataset = load_dataset(
-        path=args.dataset_path,
-        name=args.dataset_name,
-        split=args.dataset_split,
-        data_dir=args.dataset_data_dir,
-        cache_dir=args.dataset_cache_dir,
-
+def get_stack_exchange_paired(path: str,
+                              name: str,
+                              split: str,
+                              cache_dir: str,
+                              data_dir: str,
+                              max_length: int,
+                              sanity_check: bool = True,
+                              num_proc: int = None
+                              ):
+    dataset = load_dataset(
+        path=path,
+        name=name,
+        split=split,
+        cache_dir=cache_dir,
+        data_dir=data_dir,
     )
-    original_columns = train_dataset.column_names
+    original_columns = dataset.column_names
 
-    if args.sanity_check:
-        train_dataset = train_dataset.select(range(min(len(train_dataset), 1000)))
+    if sanity_check:
+        dataset = dataset.select(range(min(len(dataset), 1000)))
 
     def return_prompt_and_responses(samples) -> Dict[str, str]:
         return {
@@ -122,17 +125,48 @@ def main():
             "chosen": samples["response_j"],
             "rejected": samples["response_k"],
         }
-    train_dataset = train_dataset.map(
+
+    dataset = dataset.map(
         return_prompt_and_responses,
         batched=True,
-        num_proc=os.cpu_count() // 2,
+        num_proc=num_proc,
         remove_columns=original_columns,
-        cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
 
-    for sample in train_dataset:
-        print(sample)
+    dataset = dataset.filter(
+        lambda x: len(x["prompt"]) + len(x["chosen"]) <= max_length and len(x["prompt"]) + len(x["rejected"]) <= max_length
+    )
 
+    return dataset
+
+
+def main():
+    args = get_args()
+
+    # dataset
+    train_dataset = get_stack_exchange_paired(
+        path=args.dataset_path,
+        name=args.dataset_name,
+        split="train",
+        data_dir="data/rl",
+        cache_dir=args.dataset_cache_dir,
+        max_length=args.max_length,
+        sanity_check=args.sanity_check,
+        num_proc=os.cpu_count() // 2,
+    )
+
+    valid_dataset = get_stack_exchange_paired(
+        path=args.dataset_path,
+        name=args.dataset_name,
+        split="train",
+        data_dir="data/evaluation",
+        cache_dir=args.dataset_cache_dir,
+        max_length=args.max_length,
+        sanity_check=args.sanity_check,
+        num_proc=os.cpu_count() // 2,
+    )
+
+    # model, model reference
     model = AutoPeftModelForCausalLM.from_pretrained(
         args.model_name_or_path,
         low_cpu_mem_usage=True,
@@ -140,12 +174,79 @@ def main():
         load_in_4bit=True,
     )
     model.config.use_cache = False
+
     if args.ignore_bias_buffers:
         # torch distributed hack
         model._ddp_params_and_buffers_to_ignore = [
             name for name, buffer in model.named_buffers() if buffer.dtype == torch.bool
         ]
 
+    model_ref = AutoPeftModelForCausalLM.from_pretrained(
+        args.model_name_or_path,
+        low_cpu_mem_usage=True,
+        torch_dtype=torch.float16,
+        load_in_4bit=True,
+    )
+
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer.pad_token = tokenizer.eos_token
+
+    training_args = TrainingArguments(
+        per_device_train_batch_size=args.per_device_train_batch_size,
+        per_device_eval_batch_size=args.per_device_eval_batch_size,
+        max_steps=args.max_steps,
+        logging_steps=args.logging_steps,
+        save_steps=args.save_steps,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        gradient_checkpointing=args.gradient_checkpointing,
+        learning_rate=args.learning_rate,
+        evaluation_strategy="steps",
+        eval_steps=args.eval_steps,
+        output_dir=args.output_dir,
+        report_to=args.report_to,
+        lr_scheduler_type=args.lr_scheduler_type,
+        warmup_steps=args.warmup_steps,
+        optim=args.optimizer_type,
+        bf16=True,
+        remove_unused_columns=False,
+        run_name="dpo_llama2",
+    )
+
+    peft_config = LoraConfig(
+        r=args.lora_r,
+        lora_alpha=args.lora_alpha,
+        lora_dropout=args.lora_dropout,
+        target_modules=[
+            "q_proj",
+            "v_proj",
+            "k_proj",
+            "out_proj",
+            "fc_in",
+            "fc_out",
+            "wte",
+        ],
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+
+    dpo_trainer = DPOTrainer(
+        model,
+        model_ref,
+        args=training_args,
+        beta=args.beta,
+        train_dataset=train_dataset,
+        eval_dataset=valid_dataset,
+        tokenizer=tokenizer,
+        peft_config=peft_config,
+        max_prompt_length=args.max_prompt_length,
+        max_length=args.max_length,
+    )
+
+    dpo_trainer.train()
+    dpo_trainer.save_model(args.output_dir)
+
+    output_dir = os.path.join(args.output_dir, "final_checkpoint")
+    dpo_trainer.model.save_pretrained(output_dir)
     return
 
 
