@@ -217,7 +217,7 @@ def main():
         lr_scheduler_type=args.lr_scheduler_type,
         warmup_steps=args.warmup_steps,
         optim=args.optimizer_type,
-        bf16=True,
+        fp16=True,
         remove_unused_columns=False,
         run_name="dpo_llama2",
     )
