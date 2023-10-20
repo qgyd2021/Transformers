@@ -23,7 +23,7 @@ os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 from datasets import Dataset, load_dataset
 from peft import AutoPeftModelForCausalLM, LoraConfig
 import torch
-from transformers import AutoTokenizer, HfArgumentParser, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments
 from trl import DPOTrainer
 
 
@@ -167,7 +167,8 @@ def main():
     )
 
     # model, model reference
-    model = AutoPeftModelForCausalLM.from_pretrained(
+    # AutoPeftModelForCausalLM
+    model = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
@@ -181,7 +182,8 @@ def main():
             name for name, buffer in model.named_buffers() if buffer.dtype == torch.bool
         ]
 
-    model_ref = AutoPeftModelForCausalLM.from_pretrained(
+    # AutoPeftModelForCausalLM
+    model_ref = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
