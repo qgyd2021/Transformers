@@ -190,7 +190,15 @@ def main():
         load_in_4bit=True,
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_name_or_path,
+        trust_remote_code=True,
+        # llama不支持fast
+        use_fast=False if model.config.model_type == "llama" else True,
+        padding_side="left"
+    )
+
+    # tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     tokenizer.pad_token = tokenizer.eos_token
 
     training_args = TrainingArguments(
