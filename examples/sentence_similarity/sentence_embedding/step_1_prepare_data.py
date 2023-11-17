@@ -55,8 +55,8 @@ def main():
     train_f = open(args.train_subset, "w", encoding="utf-8")
     valid_f = open(args.valid_subset, "w", encoding="utf-8")
 
-    train_names = ["diac2019", "afqmc", "ccks2018_task3", "chinese_sts", "chip2019", "covid_19", "lcqmc", "pawsx_zh", "sts_b"]
-    valid_names = ["diac2019", "afqmc", "ccks2018_task3", "chinese_sts", "covid_19", "lcqmc", "pawsx_zh", "sts_b"]
+    train_names = ["afqmc", "ccks2018_task3", "chip2019", "lcqmc"]
+    valid_names = ["afqmc", "ccks2018_task3", "lcqmc"]
 
     for subset in tqdm(train_names):
         dataset_dict = load_dataset(

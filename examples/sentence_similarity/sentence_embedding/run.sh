@@ -74,6 +74,7 @@ elif [ $system_version == "macos" ]; then
   alias python3='/Users/honey/PycharmProjects/virtualenv/TrainLLM/bin/python'
 fi
 
+
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   $verbose && echo "stage 0: download pretrained model"
   cd "${pretrained_models_dir}" || exit 1;
@@ -108,6 +109,5 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
   --model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
-  --output_dir "${serialization_dir}" \
 
 fi

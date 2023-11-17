@@ -76,7 +76,7 @@ def get_args():
     parser.add_argument("--num_epochs", default=40, type=int)
     parser.add_argument(
         "--hf_token",
-        default="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",
+        default=None,
         type=str
     )
     args = parser.parse_args()
