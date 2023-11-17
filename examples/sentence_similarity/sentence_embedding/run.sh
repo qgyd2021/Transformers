@@ -108,6 +108,6 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   python3 step_2_train_model.py \
   --train_subset "${file_dir}/${train_subset}" \
   --valid_subset "${file_dir}/${valid_subset}" \
-  --model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
+  --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
 
 fi

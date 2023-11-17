@@ -53,6 +53,8 @@ from sentence_transformers.evaluation import EmbeddingSimilarityEvaluator
 import torch
 from torch.utils.data import DataLoader
 
+import project_settings as settings
+
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -76,7 +78,7 @@ def get_args():
     parser.add_argument("--num_epochs", default=40, type=int)
     parser.add_argument(
         "--hf_token",
-        default=None,
+        default=settings.environment.get("hf_token", default=None, dtype=str),
         type=str
     )
     args = parser.parse_args()
@@ -142,6 +144,10 @@ def main():
         use_amp=False,
         checkpoint_save_steps=int(len(train_dataloader) * 0.1),
         checkpoint_save_total_limit=2,
+    )
+
+    model.save_to_hub(
+        repo_name="zh_st_bert"
     )
     return
 
