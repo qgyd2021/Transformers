@@ -197,8 +197,6 @@ def main():
         use_fast=False if model.config.model_type == "llama" else True,
         padding_side="left"
     )
-
-    # tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     tokenizer.pad_token = tokenizer.eos_token
 
     training_args = TrainingArguments(

@@ -72,7 +72,7 @@ class ScriptArguments:
     hub_strategy: str = field(default="every_save")
 
     # hf_token
-    hf_token: str = field(default="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")
+    hf_token: str = field(default="hf_**********dxoldNPGNKVpCNynvvoHCXFz")
 
 
 def get_args():
