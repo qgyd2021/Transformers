@@ -269,4 +269,4 @@ def train_on_kaggle_notebook():
 
 
 if __name__ == '__main__':
-    train_on_cpu()
+    train_on_kaggle_notebook()
