@@ -67,7 +67,8 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    huggingface_hub.login(token=args.hf_token)
+    # huggingface_hub.login(token=args.hf_token)
+    huggingface_hub.login(token="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")
 
     # dataset
     name_list = [
