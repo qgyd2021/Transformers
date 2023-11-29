@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 
 if platform.system() == "Windows":
     from project_settings import project_path
+    import project_settings as settings
 else:
     project_path = os.path.abspath("./")
     project_path = Path(project_path)
@@ -41,14 +42,17 @@ class ScriptArguments:
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
 
     # model
-    pretrained_model_name_or_path: str = field(
-        default="uer/gpt2-chinese-cluecorpussmall"
-    )
+    # pretrained_model_name_or_path: str = field(
+    #     default="uer/gpt2-chinese-cluecorpussmall"
+    # )
     # pretrained_model_name_or_path: str = field(
     #     default=(project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
     # )
+    pretrained_model_name_or_path: str = field(
+        default="qgyd2021/lip_service_4chan"
+    )
 
-    hf_token: str = field(default=None)
+    hf_token: str = field(default=settings.environment.get("hf_token"))
 
 
 def get_args():
