@@ -86,7 +86,6 @@ def train_model(local_rank, world_size, args):
             cache_dir=args.dataset_cache_dir,
             # num_proc=args.num_workers if not args.dataset_streaming else None,
             streaming=args.dataset_streaming,
-            use_auth_token=True
         )
         # print(dataset_dict)
         dataset.append(dataset_dict["train"])
@@ -190,7 +189,7 @@ def train_model(local_rank, world_size, args):
         greater_is_better=False,
         report_to="tensorboard",
         push_to_hub=True,
-        hub_model_id="lib_service_4chan",
+        hub_model_id="lip_service_4chan",
         hub_strategy="every_save",
         gradient_checkpointing=True,
     )
