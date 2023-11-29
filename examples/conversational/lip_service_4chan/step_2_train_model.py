@@ -29,11 +29,6 @@ from transformers.trainer import Trainer
 from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.training_args import TrainingArguments
 
-try:
-    import project_settings as settings
-except Exception:
-    pass
-
 
 @dataclass
 class ScriptArguments:
@@ -56,7 +51,7 @@ class ScriptArguments:
         default="qgyd2021/lip_service_4chan"
     )
 
-    hf_token: str = field(default=settings.environment.get("hf_token"))
+    hf_token: str = field(default=None)
 
 
 def get_args():
