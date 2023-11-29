@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""
+!pip3 install datasets==2.10.1
+"""
 from dataclasses import dataclass, field
 import os
 from pathlib import Path
 import platform
 import re
+import shutil
 from typing import Dict, List, Optional, Union
 
 if platform.system() == "Windows":
@@ -33,22 +37,21 @@ from transformers.training_args import TrainingArguments
 @dataclass
 class ScriptArguments:
     # dataset
-    dataset_path: str = field(default="qgyd2021/lip_service_4chan")
-    dataset_name: str = field(default=None)
+    dataset_path: str = field(default="qgyd2021/few_shot_intent_sft")
     dataset_split: str = field(default=None)
     dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
     dataset_streaming: bool = field(default=False)
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
 
     # model
-    pretrained_model_name_or_path: str = field(
-        default="uer/gpt2-chinese-cluecorpussmall"
-    )
     # pretrained_model_name_or_path: str = field(
-    #     default=(project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
+    #     default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
     # )
+    pretrained_model_name_or_path: str = field(
+        default="qgyd2021/few_shot_intent"
+    )
 
-    hf_token: str = field(default=None)
+    hf_token: str = field(default="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")
 
 
 def get_args():
@@ -64,38 +67,62 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    huggingface_hub.login(token=args.hf_token)
+    # huggingface_hub.login(token=args.hf_token)
+    huggingface_hub.login(token="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")
 
     # dataset
-    name_list = [
-        "chatterbot_10",
-        "moss_003_sft_data_10",
-        "weibo_1",
-        "xiaohuangji_10",
-    ]
+    if os.path.exists(args.dataset_cache_dir):
+        shutil.rmtree(args.dataset_cache_dir)
 
-    dataset = list()
+    name_list = [
+        "amazon_massive_intent_en_us_prompt",
+        "amazon_massive_intent_zh_cn_prompt",
+        "atis_intent_prompt",
+        "banking77_prompt",
+        "bi_text11_prompt",
+        "bi_text27_prompt",
+        "book6_prompt",
+        # "chinese_news_title_prompt",
+        "cmid_4class_prompt",
+        "cmid_36class_prompt",
+        "conv_intent_prompt",
+        "crosswoz_prompt",
+        "dmslots_prompt",
+        "finance21_prompt",
+        "intent_classification_prompt",
+        "mobile_assistant_prompt",
+        "mtop_intent_prompt",
+        "out_of_scope_prompt",
+        "small_talk_prompt",
+        "smp2017_task1_prompt",
+        "smp2019_task1_domain_prompt",
+        "smp2019_task1_intent_prompt",
+        "snips_built_in_intents_prompt",
+        "telemarketing_intent_en_prompt",
+        "telemarketing_intent_cn_prompt",
+        "vira_intents_prompt",
+    ]
+    train_dataset = list()
     for name in name_list:
-        dataset_dict = load_dataset(
+        dataset = load_dataset(
             path=args.dataset_path,
             name=name,
-            split=args.dataset_split,
-            cache_dir=args.dataset_cache_dir,
-            # num_proc=args.num_workers if not args.dataset_streaming else None,
-            streaming=args.dataset_streaming,
+            split="train",
+            cache_dir=args.dataset_cache_dir
         )
-        # print(dataset_dict)
-        dataset.append(dataset_dict["train"])
-    dataset = concatenate_datasets(dataset)
+        train_dataset.append(dataset)
+    train_dataset = concatenate_datasets(train_dataset)
 
-    if args.dataset_streaming:
-        valid_dataset = dataset.take(args.valid_dataset_size)
-        train_dataset = dataset.skip(args.valid_dataset_size)
-        train_dataset = train_dataset.shuffle(buffer_size=args.shuffle_buffer_size, seed=None)
-    else:
-        dataset = dataset.train_test_split(test_size=4000, seed=None)
-        train_dataset = dataset["train"]
-        valid_dataset = dataset["test"]
+    valid_dataset = list()
+    for name in name_list:
+        dataset = load_dataset(
+            path=args.dataset_path,
+            name=name,
+            split="test",
+            cache_dir=args.dataset_cache_dir
+        )
+        valid_dataset.append(dataset)
+    valid_dataset = concatenate_datasets(valid_dataset)
 
     # pretrained model
     model: GPT2LMHeadModel = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
@@ -103,23 +130,23 @@ def train_model(local_rank, world_size, args):
 
     # map
     def encode(examples: dict):
-        questions_ = examples.pop("question")
-        answers_ = examples.pop("answer")
+        prompt_ = examples.pop("prompt")
+        response_ = examples.pop("response")
 
         utterances = list()
-        for question, answer in zip(questions_, answers_):
-            if not isinstance(question, str):
+        for prompt, response in zip(prompt_, response_):
+            if not isinstance(prompt, str):
                 continue
-            if not isinstance(answer, str):
+            if not isinstance(response, str):
                 continue
-            utterance = question + tokenizer.sep_token + answer
+            utterance = prompt + tokenizer.sep_token + response
             utterances.append(utterance)
 
         utterances = tokenizer.__call__(
             text=utterances,
             truncation=True,
             padding="longest",
-            max_length=512,
+            max_length=1024,
             return_special_tokens_mask=True,
         )
         return utterances
@@ -147,16 +174,6 @@ def train_model(local_rank, world_size, args):
     dataset_info = re.sub(r"[\u0020]{4,}", "", dataset_info)
     print(dataset_info)
 
-    # for k, v in model.named_parameters():
-    #     if k.__contains__(".bias"):
-    #         v.requires_grad = True
-    #     else:
-    #         v.requires_grad = False
-
-    # for k, v in model.named_parameters():
-    #     if v.requires_grad is True:
-    #         print(k)
-
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
     )
@@ -172,9 +189,9 @@ def train_model(local_rank, world_size, args):
         max_grad_norm=1.0,
         num_train_epochs=1.0,
         warmup_steps=1000,
-        logging_steps=100,
+        logging_steps=1000,
         save_strategy="steps",
-        save_steps=100,
+        save_steps=1000,
         save_total_limit=2,
         no_cuda=False,
         fp16=True if torch.cuda.is_available() else False,
@@ -186,7 +203,7 @@ def train_model(local_rank, world_size, args):
         greater_is_better=False,
         report_to="tensorboard",
         push_to_hub=True,
-        hub_model_id="lib_service_4chan",
+        hub_model_id="few_shot_intent",
         hub_strategy="every_save",
         gradient_checkpointing=True,
     )
