@@ -194,6 +194,8 @@ def train_model(local_rank, world_size, args):
         gradient_checkpointing=True,
     )
 
+    print("is_available: {}".format(torch.cuda.is_available()))
+
     partial_state_str = f"""
     distributed_type: {training_args.distributed_state.distributed_type}
     local_process_index: {training_args.distributed_state.local_process_index}
