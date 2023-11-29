@@ -9,7 +9,6 @@ from typing import Dict, List, Optional, Union
 
 if platform.system() == "Windows":
     from project_settings import project_path
-    import project_settings as settings
 else:
     project_path = os.path.abspath("./")
     project_path = Path(project_path)
@@ -29,6 +28,11 @@ from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 from transformers.trainer import Trainer
 from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.training_args import TrainingArguments
+
+try:
+    import project_settings as settings
+except Exception:
+    pass
 
 
 @dataclass
