@@ -68,7 +68,6 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_PORT"] = "12355"
 
     # huggingface_hub.login(token=args.hf_token)
-    huggingface_hub.login(token="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")
 
     # dataset
     name_list = [
@@ -87,6 +86,7 @@ def train_model(local_rank, world_size, args):
             cache_dir=args.dataset_cache_dir,
             # num_proc=args.num_workers if not args.dataset_streaming else None,
             streaming=args.dataset_streaming,
+            use_auth_token=True
         )
         # print(dataset_dict)
         dataset.append(dataset_dict["train"])
