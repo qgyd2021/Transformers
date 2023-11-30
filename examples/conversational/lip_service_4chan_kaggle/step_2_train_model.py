@@ -7,7 +7,11 @@ import platform
 import re
 from typing import Dict, List, Optional, Union
 
-from project_settings import project_path
+if platform.system() == "Windows":
+    from project_settings import project_path
+else:
+    project_path = os.path.abspath("./")
+    project_path = Path(project_path)
 
 hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
@@ -25,8 +29,6 @@ from transformers.trainer import Trainer
 from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.training_args import TrainingArguments
 
-import project_settings as settings
-
 
 @dataclass
 class ScriptArguments:
@@ -37,8 +39,6 @@ class ScriptArguments:
     dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
     dataset_streaming: bool = field(default=False)
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
-    cache_dir: str = field(default="cache_dir")
-    output_dir: str = field(default="output_dir")
 
     # model
     # pretrained_model_name_or_path: str = field(
@@ -51,7 +51,7 @@ class ScriptArguments:
         default="qgyd2021/lip_service_4chan"
     )
 
-    hf_token: str = field(default=settings.environment.get("hf_token"))
+    hf_token: str = field(default=None)
 
 
 def get_args():
@@ -67,7 +67,7 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    huggingface_hub.login(token=args.hf_token)
+    # huggingface_hub.login(token=args.hf_token)
 
     # dataset
     name_list = [
@@ -133,7 +133,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         num_proc=None,
-        cache_file_name=os.path.join(args.cache_dir, "train.cache")
+        cache_file_name="train.cache"
     )
     valid_dataset = valid_dataset.map(
         encode,
@@ -141,7 +141,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         num_proc=None,
-        cache_file_name=os.path.join(args.cache_dir, "valid.cache")
+        cache_file_name="valid.cache"
     )
     dataset_info = f"""
     train dataset: {len(train_dataset)}
@@ -150,13 +150,23 @@ def train_model(local_rank, world_size, args):
     dataset_info = re.sub(r"[\u0020]{4,}", "", dataset_info)
     print(dataset_info)
 
+    # for k, v in model.named_parameters():
+    #     if k.__contains__(".bias"):
+    #         v.requires_grad = True
+    #     else:
+    #         v.requires_grad = False
+
+    # for k, v in model.named_parameters():
+    #     if v.requires_grad is True:
+    #         print(k)
+
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=False
     )
 
     # training_args
     training_args = TrainingArguments(
-        output_dir=args.output_dir,
+        output_dir="output_dir",
         evaluation_strategy="steps",
         per_device_train_batch_size=8,
         gradient_accumulation_steps=4,
@@ -178,11 +188,13 @@ def train_model(local_rank, world_size, args):
         metric_for_best_model="loss",
         greater_is_better=False,
         report_to="tensorboard",
-        # push_to_hub=True,
-        # hub_model_id="lip_service_4chan",
-        # hub_strategy="every_save",
+        push_to_hub=True,
+        hub_model_id="lip_service_4chan",
+        hub_strategy="every_save",
         gradient_checkpointing=True,
     )
+
+    print("is_available: {}".format(torch.cuda.is_available()))
 
     partial_state_str = f"""
     distributed_type: {training_args.distributed_state.distributed_type}
@@ -237,7 +249,7 @@ def train_on_cpu():
     return
 
 
-def train_on_multi_gpu():
+def train_on_kaggle_notebook():
     """
     train on kaggle notebook with GPU T4 x2
 
@@ -262,4 +274,4 @@ def train_on_multi_gpu():
 
 
 if __name__ == '__main__':
-    train_on_multi_gpu()
+    train_on_kaggle_notebook()

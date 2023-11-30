@@ -4,7 +4,7 @@ import argparse
 import os
 import platform
 
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset
 
 from project_settings import project_path
 
@@ -12,7 +12,7 @@ from project_settings import project_path
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_path", default="qgyd2021/lip_service_4chan", type=str)
-    parser.add_argument("--dataset_name", default=None, type=str)
+    parser.add_argument("--dataset_name", default="moss_003_sft_data_10", type=str)
     parser.add_argument("--dataset_split", default=None, type=str)
     parser.add_argument(
         "--dataset_cache_dir",
@@ -33,26 +33,17 @@ def get_args():
 def main():
     args = get_args()
 
-    name_list = [
-        "chatterbot_10",
-        "moss_003_sft_data_10",
-        "weibo_1",
-        "xiaohuangji_10",
-    ]
+    dataset_dict = load_dataset(
+        path=args.dataset_path,
+        name=args.dataset_name,
+        split=args.dataset_split,
+        cache_dir=args.dataset_cache_dir,
+        num_proc=args.num_workers if not args.dataset_streaming else None,
+        streaming=args.dataset_streaming,
+    )
+    print(dataset_dict)
 
-    dataset = list()
-    for name in name_list:
-        dataset_dict = load_dataset(
-            path=args.dataset_path,
-            name=name,
-            split=args.dataset_split,
-            cache_dir=args.dataset_cache_dir,
-            # num_proc=args.num_workers if not args.dataset_streaming else None,
-            streaming=args.dataset_streaming,
-        )
-        # print(dataset_dict)
-        dataset.append(dataset_dict["train"])
-    dataset = concatenate_datasets(dataset)
+    dataset = dataset_dict["train"]
 
     if args.dataset_streaming:
         valid_dataset = dataset.take(args.valid_dataset_size)
