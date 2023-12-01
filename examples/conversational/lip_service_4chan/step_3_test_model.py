@@ -8,11 +8,7 @@ import re
 import string
 from typing import List
 
-if platform.system() == "Windows":
-    from project_settings import project_path
-else:
-    project_path = os.path.abspath("./")
-    project_path = Path(project_path)
+from project_settings import project_path
 
 hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
@@ -24,6 +20,9 @@ from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
 
 def get_args():
+    """
+    python3 step_3_test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/qgyd2021/lip_service_4chan
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
