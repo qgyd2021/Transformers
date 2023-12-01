@@ -169,3 +169,17 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
    --output_dir "${serialization_dir}"
 
 fi
+
+
+if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
+  $verbose && echo "stage 3: collect files"
+  cd "${work_dir}" || exit 1;
+
+  cp "${serialization_dir}/${final_checkpoint_dir}/pytorch_model.bin" "${final_model_dir}/pytorch_model.bin"
+
+  cp "${pretrained_models_dir}/${pretrained_model_name}/config.json" "${final_model_dir}/config.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/special_tokens_map.json" "${final_model_dir}/special_tokens_map.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/tokenizer_config.json" "${final_model_dir}/tokenizer_config.json"
+  cp "${pretrained_models_dir}/${pretrained_model_name}/vocab.txt" "${final_model_dir}/vocab.txt"
+
+fi
