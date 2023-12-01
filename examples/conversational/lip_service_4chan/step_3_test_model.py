@@ -3,12 +3,14 @@
 import argparse
 import os
 from pathlib import Path
-import platform
 import re
+import sys
 import string
 from typing import List
 
-from project_settings import project_path
+pwd = os.path.abspath(os.path.dirname(__file__))
+project_path = Path(os.path.join(pwd, "../../../"))
+sys.path.append(project_path.as_posix())
 
 hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
