@@ -8,8 +8,12 @@ import os
 from pathlib import Path
 import platform
 import re
+import sys
 import shutil
 from typing import Dict, List, Optional, Union
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, "../../../"))
 
 try:
     from project_settings import project_path
