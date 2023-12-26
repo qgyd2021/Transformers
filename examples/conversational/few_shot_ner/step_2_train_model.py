@@ -11,9 +11,9 @@ import re
 import shutil
 from typing import Dict, List, Optional, Union
 
-if platform.system() == "Windows":
+try:
     from project_settings import project_path
-else:
+except ModuleNotFoundError:
     project_path = os.path.abspath("./")
     project_path = Path(project_path)
 
@@ -71,8 +71,8 @@ def train_model(local_rank, world_size, args):
     # huggingface_hub.login(token="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")
 
     # dataset
-    if os.path.exists(args.dataset_cache_dir):
-        shutil.rmtree(args.dataset_cache_dir)
+    # if os.path.exists(args.dataset_cache_dir):
+    #     shutil.rmtree(args.dataset_cache_dir)
 
     name_list = [
         "acronym_identification_prompt",
