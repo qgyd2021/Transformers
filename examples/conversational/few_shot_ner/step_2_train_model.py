@@ -37,19 +37,19 @@ from transformers.training_args import TrainingArguments
 @dataclass
 class ScriptArguments:
     # dataset
-    dataset_path: str = field(default="qgyd2021/few_shot_intent_sft")
+    dataset_path: str = field(default="qgyd2021/few_shot_ner_sft")
     dataset_split: str = field(default=None)
     dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
     dataset_streaming: bool = field(default=False)
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
 
     # model
-    # pretrained_model_name_or_path: str = field(
-    #     default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
-    # )
     pretrained_model_name_or_path: str = field(
-        default="qgyd2021/few_shot_intent"
+        default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
     )
+    # pretrained_model_name_or_path: str = field(
+    #     default="qgyd2021/few_shot_ner"
+    # )
 
     hf_token: str = field(default="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")
 
@@ -67,51 +67,53 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    # huggingface_hub.login(token=args.hf_token)
-    huggingface_hub.login(token="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")
+    huggingface_hub.login(token=args.hf_token)
+    # huggingface_hub.login(token="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")
 
     # dataset
     if os.path.exists(args.dataset_cache_dir):
         shutil.rmtree(args.dataset_cache_dir)
 
     name_list = [
-        "amazon_massive_intent_en_us_prompt",
-        "amazon_massive_intent_zh_cn_prompt",
-        "atis_intent_prompt",
-        "banking77_prompt",
-        "bi_text11_prompt",
-        "bi_text27_prompt",
-        "book6_prompt",
-        "carer_prompt",
-        "chatbots_prompt",
-        "chinese_news_title_prompt",
-        "cmid_4class_prompt",
-        "cmid_36class_prompt",
-        "coig_cqia_prompt",
-        "conv_intent_prompt",
-        "crosswoz_prompt",
-        "dmslots_prompt",
-        "emo2019_prompt",
-        "finance21_prompt",
-        "ide_intent_prompt",
-        "intent_classification_prompt",
-        "jarvis_intent_prompt",
-        "mobile_assistant_prompt",
-        "mtop_intent_prompt",
-        "out_of_scope_prompt",
-        "ri_sawoz_domain_prompt",
-        "ri_sawoz_general_prompt",
-        "small_talk_prompt",
-        "smp2017_task1_prompt",
-        "smp2019_task1_domain_prompt",
-        "smp2019_task1_intent_prompt",
-        "star_wars_prompt",
-        "suicide_intent_prompt",
-        "snips_built_in_intents_prompt",
-        "telemarketing_intent_en_prompt",
-        "telemarketing_intent_cn_prompt",
-        "vira_intents_prompt",
+        "acronym_identification_prompt",
+        "bank_prompt",
+        "bc4chemd_ner_prompt",
+        "bc2gm_prompt",
+        "ccfbdci_prompt",
+        "ccks2019_task1_prompt",
+        "cluener2020_prompt",
+        "cmeee_prompt",
+        "conll2003_prompt",
+        "conll2012_ontonotesv5_chinese_v4_prompt",
+        "conll2012_ontonotesv5_english_v4_prompt",
+        "conll2012_ontonotesv5_english_v12_prompt",
+        "dlner_prompt",
+        "ecommerce_prompt",
+        "episet4ner_v2_prompt",
+        "few_nerd_inter_prompt",
+        "few_nerd_inter_fine_prompt",
+        "few_nerd_intra_prompt",
+        "few_nerd_intra_fine_prompt",
+        "few_nerd_supervised_prompt",
+        "few_nerd_supervised_fine_prompt",
+        "finance_sina_prompt",
+        "limit_prompt",
+        "msra_prompt",
+        "ncbi_disease_prompt",
+        "nlpcc2018_task4_prompt",
+        "people_daily_prompt",
+        "pet_prompt",
+        # "plod_prompt",
+        "resume_prompt",
+        "sd_nlp_non_tokenized_prompt",
+        "wiesp2022_ner_prompt",
+        "weibo_prompt",
+        "wnut_17_prompt",
+        "xtreme_en_prompt",
+        "youku_prompt",
+
     ]
+
     train_dataset = list()
     for name in name_list:
         dataset = load_dataset(
@@ -213,7 +215,7 @@ def train_model(local_rank, world_size, args):
         greater_is_better=False,
         report_to="tensorboard",
         push_to_hub=True,
-        hub_model_id="few_shot_intent",
+        hub_model_id="few_shot_ner",
         hub_strategy="every_save",
         gradient_checkpointing=True,
     )
