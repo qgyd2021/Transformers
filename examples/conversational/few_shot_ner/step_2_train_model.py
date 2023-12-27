@@ -49,12 +49,12 @@ class ScriptArguments:
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
 
     # model
-    pretrained_model_name_or_path: str = field(
-        default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
-    )
     # pretrained_model_name_or_path: str = field(
-    #     default="qgyd2021/few_shot_ner"
+    #     default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
     # )
+    pretrained_model_name_or_path: str = field(
+        default="qgyd2021/few_shot_ner"
+    )
 
     hf_token: str = field(default="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")
 
