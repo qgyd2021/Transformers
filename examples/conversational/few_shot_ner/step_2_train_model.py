@@ -204,7 +204,7 @@ def train_model(local_rank, world_size, args):
         learning_rate=2e-4,
         weight_decay=0,
         max_grad_norm=1.0,
-        num_train_epochs=1.0,
+        num_train_epochs=100.0,
         warmup_steps=1000,
         logging_steps=1000,
         save_strategy="steps",
