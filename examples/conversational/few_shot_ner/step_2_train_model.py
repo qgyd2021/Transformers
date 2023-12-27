@@ -24,6 +24,7 @@ except ModuleNotFoundError:
 hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
+os.environ["TOKENIZERS_PARALLELISM"] = True
 
 from datasets import load_dataset, concatenate_datasets
 import huggingface_hub
