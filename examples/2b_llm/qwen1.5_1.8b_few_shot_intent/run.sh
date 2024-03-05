@@ -120,34 +120,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
 
     rm -rf .git
     rm -rf .gitattributes
-    rm -rf flax_model.msgpack
-    rm -rf model.safetensors
   fi
-
-  cd "${pretrained_models_dir}/${pretrained_model_name}" || exit 1;
-
-  # pytorch_model.bin
-  if [ -e "pytorch_model.bin" ]; then
-    data_size=$(ls -l pytorch_model.bin | awk '{print $5}')
-    if [ "${data_size}" == "135" ]; then
-      rm -rf pytorch_model.bin;
-    fi
-  fi
-  if [ ! -e "pytorch_model.bin" ]; then
-    wget -c "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/resolve/main/pytorch_model.bin"
-  fi
-
-  # tokenizer.json
-  if [ -e "tokenizer.json" ]; then
-    data_size=$(ls -l tokenizer.json | awk '{print $5}')
-    if [ "${data_size}" == "135" ]; then
-      rm -rf tokenizer.json;
-    fi
-  fi
-  if [ ! -e "tokenizer.json" ]; then
-      wget -c "https://huggingface.co/${pretrained_model_supplier}/${pretrained_model_name}/resolve/main/tokenizer.json"
-  fi
-
 fi
 
 
