@@ -33,20 +33,16 @@ def get_args():
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_path", default="Iess/chinese_modern_poetry", type=str)
-    parser.add_argument("--dataset_name", default=None, type=str)
-    parser.add_argument("--dataset_split", default=None, type=str)
-    parser.add_argument(
-        "--dataset_cache_dir",
-        default=(project_path / "hub_datasets").as_posix(),
-        type=str
-    )
+
+    parser.add_argument("--train_subset", default="train.jsonl", type=str)
+    parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
 
     parser.add_argument(
         "--pretrained_model_name_or_path",
         default="Qwen/Qwen-7B",
         type=str
     )
+
     parser.add_argument("--cache_dir", default="cache_dir", type=str)
 
     # train
@@ -159,6 +155,9 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
+    os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(args.cache_dir, exist_ok=True)
+
     # dataset
     # dataset_dict = DatasetDict()
     dataset_dict = IterableDatasetDict()
@@ -228,8 +227,6 @@ def train_model(local_rank, world_size, args):
     # 查看模型种各种类型的参数的情况
     verify_model_dtype(model)
 
-    data_collator = DataCollatorForLanguageModeling(tokenizer, args.max_seq_length)
-
     # dataset
     def encode(examples: dict):
         prompt_ = examples.pop("prompt")
@@ -259,7 +256,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         num_proc=None,
-        cache_file_name="train.cache"
+        cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
         encode,
@@ -267,7 +264,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         num_proc=None,
-        cache_file_name="valid.cache"
+        cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
     dataset_info = f"""
     train dataset: {len(train_dataset)}
@@ -353,8 +350,6 @@ def train_model(local_rank, world_size, args):
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
-
-    tokenizer.save_pretrained(final_save_path)
     return
 
 

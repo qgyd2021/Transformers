@@ -23,6 +23,9 @@ final_model_name=qwen1.5_1.8B_few_shot_intent
 patience=0
 num_epochs=3
 
+train_subset=train.jsonl
+valid_subset=valid.jsonl
+
 # parse options
 while true; do
   [ -z "${1:-}" ] && break;  # break if there are no arguments
@@ -128,7 +131,10 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: prepare data"
   cd "${work_dir}" || exit 1;
 
-  python3 step_1_prepare_data.py --num_epochs "${num_epochs}"
+  python3 step_1_prepare_data.py  \
+  --num_epochs "${num_epochs}" \
+  --train_subset "${file_dir}/${train_subset}" \
+  --valid_subset "${file_dir}/${valid_subset}" \
 
 fi
 
@@ -138,6 +144,8 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cd "${work_dir}" || exit 1;
 
    python3 step_2_train_model.py \
+   --train_subset "${file_dir}/${train_subset}" \
+   --valid_subset "${file_dir}/${valid_subset}" \
    --pretrained_model_name_or_path "${pretrained_models_dir}/${pretrained_model_name}" \
    --cache_dir "${cache_dir}" \
    --output_dir "${serialization_dir}"

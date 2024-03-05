@@ -19,9 +19,11 @@ def get_args():
         default=(project_path / "hub_datasets").as_posix(),
         type=str
     )
+
+    parser.add_argument("--num_epochs", default=1, type=str)
+
     parser.add_argument("--train_subset", default="train.jsonl", type=str)
     parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
-    parser.add_argument("--num_epochs", default=1, type=str)
     args = parser.parse_args()
     return args
 
