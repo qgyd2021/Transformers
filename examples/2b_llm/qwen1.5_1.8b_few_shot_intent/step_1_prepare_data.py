@@ -32,7 +32,7 @@ def main():
     args = get_args()
 
     name_list = [
-        "a_intent_prompt",
+        # "a_intent_prompt",
         "amazon_massive_intent_en_us_prompt",
         "amazon_massive_intent_zh_cn_prompt",
         "atis_intents_prompt",
@@ -64,7 +64,7 @@ def main():
         "smp2017_task1_prompt",
         "smp2019_task1_domain_prompt",
         "smp2019_task1_intent_prompt",
-        "snips_built_in_intents_prompt",
+        # "snips_built_in_intents_prompt",
         "star_wars_prompt",
         "suicide_intent_prompt",
         "snips_built_in_intents_prompt",
@@ -76,6 +76,7 @@ def main():
     with open(args.train_subset, "w", encoding="utf-8") as f:
         for _ in range(args.num_epochs):
             for name in name_list:
+                print(name)
                 dataset = load_dataset(
                     path=args.dataset_path,
                     name=name,
@@ -90,6 +91,7 @@ def main():
     with open(args.valid_subset, "w", encoding="utf-8") as f:
         for _ in range(args.num_epochs):
             for name in name_list:
+                print(name)
                 dataset = load_dataset(
                     path=args.dataset_path,
                     name=name,

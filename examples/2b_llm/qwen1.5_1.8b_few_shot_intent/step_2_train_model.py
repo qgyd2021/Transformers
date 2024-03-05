@@ -245,7 +245,7 @@ def train_model(local_rank, world_size, args):
             text=utterances,
             truncation=True,
             padding="longest",
-            max_length=1024,
+            max_length=args.max_seq_length,
             return_special_tokens_mask=True,
         )
         return utterances
