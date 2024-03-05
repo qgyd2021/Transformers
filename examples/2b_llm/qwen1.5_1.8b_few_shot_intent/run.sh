@@ -21,7 +21,7 @@ final_checkpoint_dir=final
 final_model_name=qwen1.5_1.8B_few_shot_intent
 
 patience=0
-
+num_epochs=3
 
 # parse options
 while true; do
@@ -155,7 +155,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   $verbose && echo "stage 1: prepare data"
   cd "${work_dir}" || exit 1;
 
-  python3 step_1_prepare_data.py
+  python3 step_1_prepare_data.py --num_epochs "${num_epochs}"
 
 fi
 
