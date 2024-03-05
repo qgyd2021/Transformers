@@ -32,9 +32,10 @@ def main():
     args = get_args()
 
     name_list = [
+        "a_intent_prompt",
         "amazon_massive_intent_en_us_prompt",
         "amazon_massive_intent_zh_cn_prompt",
-        "atis_intent_prompt",
+        "atis_intents_prompt",
         "banking77_prompt",
         "bi_text11_prompt",
         "bi_text27_prompt",
@@ -48,6 +49,7 @@ def main():
         "conv_intent_prompt",
         "crosswoz_prompt",
         "dmslots_prompt",
+        "dnd_style_intents_prompt",
         "emo2019_prompt",
         "finance21_prompt",
         "ide_intent_prompt",
@@ -62,11 +64,12 @@ def main():
         "smp2017_task1_prompt",
         "smp2019_task1_domain_prompt",
         "smp2019_task1_intent_prompt",
+        "snips_built_in_intents_prompt",
         "star_wars_prompt",
         "suicide_intent_prompt",
         "snips_built_in_intents_prompt",
-        "telemarketing_intent_en_prompt",
         "telemarketing_intent_cn_prompt",
+        "telemarketing_intent_en_prompt",
         "vira_intents_prompt",
     ]
 
