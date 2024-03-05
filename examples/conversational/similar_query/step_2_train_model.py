@@ -42,19 +42,19 @@ from transformers.training_args import TrainingArguments
 @dataclass
 class ScriptArguments:
     # dataset
-    dataset_path: str = field(default="qgyd2021/few_shot_ner_sft")
+    dataset_path: str = field(default="qgyd2021/sentence_pair")
     dataset_split: str = field(default=None)
     dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
     dataset_streaming: bool = field(default=False)
     num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
 
     # model
-    # pretrained_model_name_or_path: str = field(
-    #     default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
-    # )
     pretrained_model_name_or_path: str = field(
-        default="qgyd2021/few_shot_ner"
+        default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
     )
+    # pretrained_model_name_or_path: str = field(
+    #     default="qgyd2021/few_shot_ner"
+    # )
 
     hf_token: str = field(default="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")
 
@@ -80,42 +80,19 @@ def train_model(local_rank, world_size, args):
     #     shutil.rmtree(args.dataset_cache_dir)
 
     name_list = [
-        "acronym_identification_prompt",
-        "bank_prompt",
-        "bc4chemd_ner_prompt",
-        "bc2gm_prompt",
-        "ccfbdci_prompt",
-        "ccks2019_task1_prompt",
-        "cluener2020_prompt",
-        "cmeee_prompt",
-        "conll2003_prompt",
-        "conll2012_ontonotesv5_chinese_v4_prompt",
-        "conll2012_ontonotesv5_english_v4_prompt",
-        "conll2012_ontonotesv5_english_v12_prompt",
-        "dlner_prompt",
-        "ecommerce_prompt",
-        "episet4ner_v2_prompt",
-        # "few_nerd_inter_prompt",
-        # "few_nerd_inter_fine_prompt",
-        # "few_nerd_intra_prompt",
-        # "few_nerd_intra_fine_prompt",
-        "few_nerd_supervised_prompt",
-        "few_nerd_supervised_fine_prompt",
-        "finance_sina_prompt",
-        "limit_prompt",
-        "msra_prompt",
-        "ncbi_disease_prompt",
-        "nlpcc2018_task4_prompt",
-        "people_daily_prompt",
-        "pet_prompt",
-        # "plod_prompt",
-        "resume_prompt",
-        "sd_nlp_non_tokenized_prompt",
-        "wiesp2022_ner_prompt",
-        "weibo_prompt",
-        "wnut_17_prompt",
-        "xtreme_en_prompt",
-        "youku_prompt",
+        "afqmc",
+        "bustm",
+        "ccks2018_task3",
+        "chinese_mnli",
+        "chinese_snli",
+        "chinese_sts",
+        "chip2019",
+        "covid_19",
+        "diac2019",
+        "lcqmc",
+        "ocnli",
+        "pawsx_zh",
+        "sts_b",
 
     ]
 
@@ -145,42 +122,58 @@ def train_model(local_rank, world_size, args):
     model: GPT2LMHeadModel = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
     tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
 
+    # filter
+    def dataset_filter(example: dict):
+        label = example["label"]
+        return label == "1"
+
     # map
-    def encode(examples: dict):
-        prompt_ = examples.pop("prompt")
-        response_ = examples.pop("response")
+    def dataset_encode(examples: dict):
+        sentence1_list = examples.pop("sentence1")
+        sentence2_list = examples.pop("sentence2")
+        label_list = examples.pop("label")
 
         utterances = list()
-        for prompt, response in zip(prompt_, response_):
-            if not isinstance(prompt, str):
+        for sentence1, sentence2, label in zip(sentence1_list, sentence2_list, label_list):
+            if not isinstance(sentence1, str):
                 continue
-            if not isinstance(response, str):
+            if not isinstance(sentence2, str):
                 continue
-            utterance = prompt + tokenizer.sep_token + response
+            utterance = sentence1 + tokenizer.sep_token + sentence2
             utterances.append(utterance)
 
         utterances = tokenizer.__call__(
             text=utterances,
             truncation=True,
             padding="longest",
-            max_length=1024,
+            max_length=512,
             return_special_tokens_mask=True,
         )
         return utterances
 
+    # filter
+    train_dataset = train_dataset.filter(
+        dataset_filter,
+        batch_size=100
+    )
+    valid_dataset = valid_dataset.filter(
+        dataset_filter,
+        batch_size=100
+    )
+    # map
     train_dataset = train_dataset.map(
-        encode,
+        dataset_encode,
         batched=True,
         drop_last_batch=True,
-        batch_size=10,
+        batch_size=100,
         num_proc=None,
         cache_file_name="train.cache"
     )
     valid_dataset = valid_dataset.map(
-        encode,
+        dataset_encode,
         batched=True,
         drop_last_batch=True,
-        batch_size=10,
+        batch_size=100,
         num_proc=None,
         cache_file_name="valid.cache"
     )
@@ -220,7 +213,7 @@ def train_model(local_rank, world_size, args):
         greater_is_better=False,
         report_to="tensorboard",
         push_to_hub=True,
-        hub_model_id="few_shot_ner",
+        hub_model_id="similar_question_generation",
         hub_strategy="every_save",
         gradient_checkpointing=True,
     )
@@ -303,4 +296,4 @@ def train_on_kaggle_notebook():
 
 
 if __name__ == '__main__':
-    train_on_kaggle_notebook()
+    train_on_cpu()
