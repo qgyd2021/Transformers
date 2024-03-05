@@ -74,7 +74,7 @@ def train_model(local_rank, world_size, args):
     if os.path.exists(args.dataset_cache_dir):
         shutil.rmtree(args.dataset_cache_dir)
 
-    name_list = [
+    train_name_list = [
         "amazon_massive_intent_en_us_prompt",
         "amazon_massive_intent_zh_cn_prompt",
         "atis_intent_prompt",
@@ -113,7 +113,7 @@ def train_model(local_rank, world_size, args):
         "vira_intents_prompt",
     ]
     train_dataset = list()
-    for name in name_list:
+    for name in train_name_list:
         dataset = load_dataset(
             path=args.dataset_path,
             name=name,

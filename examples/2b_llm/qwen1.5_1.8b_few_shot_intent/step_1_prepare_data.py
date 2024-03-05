@@ -82,7 +82,8 @@ def main():
                     name=name,
                     split="train",
                     cache_dir=args.dataset_cache_dir,
-                    download_mode=DownloadMode.FORCE_REDOWNLOAD
+                    download_mode=DownloadMode.FORCE_REDOWNLOAD,
+                    ignore_verifications=True
                 )
                 for sample in tqdm(dataset):
                     row = json.dumps(sample, ensure_ascii=False)
@@ -97,7 +98,8 @@ def main():
                     name=name,
                     split="test",
                     cache_dir=args.dataset_cache_dir,
-                    download_mode=DownloadMode.FORCE_REDOWNLOAD
+                    download_mode=DownloadMode.FORCE_REDOWNLOAD,
+                    ignore_verifications=True
                 )
                 for sample in tqdm(dataset):
                     row = json.dumps(sample, ensure_ascii=False)
