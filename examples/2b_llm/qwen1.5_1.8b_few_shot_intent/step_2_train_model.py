@@ -181,7 +181,7 @@ def train_model(local_rank, world_size, args):
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
         device_map={"": 0},
-        load_in_4bit=True,
+        # load_in_4bit=True,
         torch_dtype=torch.float16,
         trust_remote_code=True,
         quantization_config=BitsAndBytesConfig(
