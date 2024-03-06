@@ -279,7 +279,7 @@ def train_model(local_rank, world_size, args):
         num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
-    train_dataset.set_format(type=None, columns=["input_ids", "attention_mask", "target_mask"])
+    train_dataset.set_format(type=None, columns=["input_ids", "attention_mask"])
     valid_dataset = valid_dataset.map(
         encode_with_truncation,
         batched=False,
@@ -287,7 +287,7 @@ def train_model(local_rank, world_size, args):
         num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
-    valid_dataset.set_format(type=None, columns=["input_ids", "attention_mask", "target_mask"])
+    valid_dataset.set_format(type=None, columns=["input_ids", "attention_mask"])
 
     dataset_info = f"""
     train dataset: {len(train_dataset)}
