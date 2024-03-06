@@ -255,7 +255,7 @@ def train_model(local_rank, world_size, args):
         batched=True,
         drop_last_batch=True,
         batch_size=10,
-        num_proc=None,
+        # num_proc=None,
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
@@ -263,7 +263,7 @@ def train_model(local_rank, world_size, args):
         batched=True,
         drop_last_batch=True,
         batch_size=10,
-        num_proc=None,
+        # num_proc=None,
         cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
     dataset_info = f"""
