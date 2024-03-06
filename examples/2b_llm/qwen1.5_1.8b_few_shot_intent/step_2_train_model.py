@@ -201,7 +201,7 @@ def train_model(local_rank, world_size, args):
         use_fast=False if model.config.model_type == "llama" else True
     )
     # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
-    if tokenizer.__class__.__name__ == "QWenTokenizer":
+    if tokenizer.__class__.__name__ in ("QWenTokenizer", "Qwen2Tokenizer"):
         tokenizer.pad_token_id = tokenizer.eod_id
         tokenizer.bos_token_id = tokenizer.eod_id
         tokenizer.eos_token_id = tokenizer.eod_id
