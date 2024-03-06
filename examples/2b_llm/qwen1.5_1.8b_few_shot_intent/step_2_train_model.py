@@ -337,10 +337,6 @@ def train_model(local_rank, world_size, args):
     environ = re.sub(r"[\u0020]{4,}", "", environ)
     print(environ)
 
-    callbacks = [
-        EarlyStoppingCallback(early_stopping_patience=5)
-    ]
-
     # 初始化 Trainer
     trainer = Trainer(
         model=model,
@@ -349,7 +345,6 @@ def train_model(local_rank, world_size, args):
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
         tokenizer=tokenizer,
-        callbacks=callbacks
     )
     train_result = trainer.train()
 
@@ -396,4 +391,4 @@ def train_on_kaggle_notebook():
 
 
 if __name__ == '__main__':
-    train_on_cpu()
+    train_on_kaggle_notebook()
