@@ -182,15 +182,15 @@ def train_model(local_rank, world_size, args):
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
         device_map={"": 0},
-        # torch_dtype=torch.float16,
-        # quantization_config=BitsAndBytesConfig(
-        #     load_in_4bit=True,
-        #     bnb_4bit_compute_dtype=torch.float16,
-        #     bnb_4bit_use_double_quant=True,
-        #     bnb_4bit_quant_type="nf4",
-        #     llm_int8_threshold=6.0,
-        #     llm_int8_has_fp16_weight=False,
-        # ),
+        torch_dtype=torch.float16,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            llm_int8_threshold=6.0,
+            llm_int8_has_fp16_weight=False,
+        ),
     )
     # tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
@@ -208,25 +208,25 @@ def train_model(local_rank, world_size, args):
 
     # model
     # casts all the non int8 modules to full precision (fp32) for stability
-    # model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
-    # print(f"memory footprint of model: {model.get_memory_footprint() / (1024*1024*1024)} GB")
+    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
+    print(f"memory footprint of model: {model.get_memory_footprint() / (1024*1024*1024)} GB")
 
     # 找到所有需要插入adapter的全连接层
-    # target_modules = find_all_linear_names(model)
-    # config = LoraConfig(
-    #     r=args.lora_rank,
-    #     lora_alpha=args.lora_alpha,
-    #     target_modules=target_modules,
-    #     lora_dropout=args.lora_dropout,
-    #     bias="none",
-    #     task_type="CAUSAL_LM",
-    # )
-    # model = get_peft_model(model, config)
-    # model.print_trainable_parameters()
-    # model.config.torch_dtype = torch.float32
+    target_modules = find_all_linear_names(model)
+    config = LoraConfig(
+        r=args.lora_rank,
+        lora_alpha=args.lora_alpha,
+        target_modules=target_modules,
+        lora_dropout=args.lora_dropout,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+    model = get_peft_model(model, config)
+    model.print_trainable_parameters()
+    model.config.torch_dtype = torch.float32
 
     # 查看模型种各种类型的参数的情况
-    # verify_model_dtype(model)
+    verify_model_dtype(model)
 
     # dataset
     def encode_with_truncation(examples):
