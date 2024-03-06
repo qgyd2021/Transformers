@@ -206,11 +206,9 @@ def train_model(local_rank, world_size, args):
         tokenizer.pad_token_id = tokenizer.eod_id
         tokenizer.bos_token_id = tokenizer.eod_id
         tokenizer.eos_token_id = tokenizer.eod_id
-    print(tokenizer.pad_token_id)
-    print(tokenizer.bos_token_id)
-    print(tokenizer.eos_token_id)
-    print(tokenizer.eod_id)
-    exit(0)
+    if tokenizer.__class__.__name__ in ("Qwen2TokenizerFast",):
+        tokenizer.bos_token_id = tokenizer.eos_token_id
+
     # model
     # casts all the non int8 modules to full precision (fp32) for stability
     model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
