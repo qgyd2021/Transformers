@@ -259,6 +259,12 @@ def train_model(local_rank, world_size, args):
 
         assert len(input_ids) == len(target_mask) == len(attention_mask)
 
+        if len(input_ids) < args.max_seq_length:
+            l = args.max_seq_length - len(input_ids)
+            input_ids += [tokenizer.pad_token_id] * l
+            attention_mask += [0] * l
+            target_mask += [0] * l
+
         inputs = {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
