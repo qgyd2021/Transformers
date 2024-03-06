@@ -159,17 +159,17 @@ def train_model(local_rank, world_size, args):
     os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
-    # dataset_dict = DatasetDict()
-    dataset_dict = IterableDatasetDict()
+    dataset_dict = DatasetDict()
+    # dataset_dict = IterableDatasetDict()
     train_data_files = [args.train_subset]
     train_dataset = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files],
-        streaming=True,
+        # streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     valid_dataset = load_dataset(
         path="json", data_files=[str(file) for file in valid_data_files],
-        streaming=True,
+        # streaming=True,
     )["train"]
 
     dataset_dict["train"] = train_dataset
@@ -255,16 +255,16 @@ def train_model(local_rank, world_size, args):
         batched=True,
         drop_last_batch=True,
         batch_size=10,
-        # num_proc=None,
-        # cache_file_name=os.path.join(args.cache_dir, "train.cache")
+        num_proc=None,
+        cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
         encode,
         batched=True,
         drop_last_batch=True,
         batch_size=10,
-        # num_proc=None,
-        # cache_file_name=os.path.join(args.cache_dir, "valid.cache")
+        num_proc=None,
+        cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
     dataset_info = f"""
     train dataset: {len(train_dataset)}
