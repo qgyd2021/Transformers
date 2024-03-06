@@ -149,12 +149,8 @@ def find_all_linear_names(model):
     return list(lora_module_names)
 
 
-def train_model(local_rank, world_size, args):
-    os.environ["RANK"] = f"{local_rank}"
-    os.environ["LOCAL_RANK"] = f"{local_rank}"
-    os.environ["WORLD_SIZE"] = f"{world_size}"
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
+def main():
+    args = get_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.cache_dir, exist_ok=True)
@@ -370,36 +366,5 @@ def train_model(local_rank, world_size, args):
     return
 
 
-def train_on_cpu():
-    args = get_args()
-
-    train_model(0, 1, args)
-    return
-
-
-def train_on_kaggle_notebook():
-    """
-    train on kaggle notebook with GPU T4 x2
-
-    from shutil import copyfile
-    copyfile(src = "../input/tempdataset/step_2_train_model.py", dst = "../working/step_2_train_model.py")
-
-    import step_2_train_model
-    step_2_train_model.train_on_kaggle_notebook()
-
-    """
-    args = get_args()
-
-    world_size = torch.cuda.device_count()
-    print("world_size: {}".format(world_size))
-
-    mp.spawn(train_model,
-             args=(world_size, args),
-             nprocs=world_size,
-             join=True)
-
-    return
-
-
 if __name__ == '__main__':
-    train_on_kaggle_notebook()
+    main()
