@@ -77,7 +77,7 @@ def get_args():
     parser.add_argument("--deepspeed", default=None, type=str)
     parser.add_argument("--optim", default="paged_adamw_32bit", type=str)
     parser.add_argument("--report_to", default="tensorboard", type=str)
-    parser.add_argument("--dataloader_prefetch_factor", default=None, type=int)
+    parser.add_argument("--dataloader_prefetch_factor", default=1, type=int)
     parser.add_argument("--resume_from_checkpoint", default="file_dir/serialization_dir/checkpoint-103000", type=str)
     # parser.add_argument("--gradient_checkpointing", action="store_true")
     parser.add_argument("--gradient_checkpointing", action="store_false")
