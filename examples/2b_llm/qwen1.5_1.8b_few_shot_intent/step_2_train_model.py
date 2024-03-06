@@ -228,30 +228,43 @@ def train_model(local_rank, world_size, args):
     verify_model_dtype(model)
 
     # dataset
-    def encode(examples: dict):
+    def encode_with_truncation(examples):
         prompt_ = examples.pop("prompt")
         response_ = examples.pop("response")
+        utterances = [
+            prompt_,
+            response_
+        ]
 
-        utterances = list()
-        for prompt, response in zip(prompt_, response_):
-            if not isinstance(prompt, str):
-                continue
-            if not isinstance(response, str):
-                continue
-            utterance = prompt + tokenizer.sep_token + response
-            utterances.append(utterance)
+        utterances_ids = tokenizer(utterances, add_special_tokens=False).input_ids
 
-        utterances = tokenizer.__call__(
-            text=utterances,
-            truncation=True,
-            padding="longest",
-            max_length=args.max_seq_length,
-            return_special_tokens_mask=True,
-        )
-        return utterances
+        input_ids = [tokenizer.bos_token_id]
+        target_mask = [0]
+        for i, utterances_id in enumerate(utterances_ids):
+            input_ids += (utterances_id + [tokenizer.eos_token_id])
+
+            if i % 2 == 0:
+                target_mask += [0] * (len(utterances_id) + 1)
+            else:
+                target_mask += [1] * (len(utterances_id) + 1)
+
+        assert len(input_ids) == len(target_mask)
+
+        input_ids = input_ids[:args.max_seq_length]
+        target_mask = target_mask[:args.max_seq_length]
+        attention_mask = [1] * len(input_ids)
+
+        assert len(input_ids) == len(target_mask) == len(attention_mask)
+
+        inputs = {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "target_mask": target_mask
+        }
+        return inputs
 
     train_dataset = train_dataset.map(
-        encode,
+        encode_with_truncation,
         batched=True,
         drop_last_batch=True,
         batch_size=10,
@@ -259,7 +272,7 @@ def train_model(local_rank, world_size, args):
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
-        encode,
+        encode_with_truncation,
         batched=True,
         drop_last_batch=True,
         batch_size=10,
