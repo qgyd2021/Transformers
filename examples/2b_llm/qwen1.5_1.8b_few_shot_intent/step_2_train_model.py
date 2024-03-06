@@ -256,7 +256,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         # num_proc=None,
-        cache_file_name=os.path.join(args.cache_dir, "train.cache")
+        # cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
         encode,
@@ -264,7 +264,7 @@ def train_model(local_rank, world_size, args):
         drop_last_batch=True,
         batch_size=10,
         # num_proc=None,
-        cache_file_name=os.path.join(args.cache_dir, "valid.cache")
+        # cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
     dataset_info = f"""
     train dataset: {len(train_dataset)}
