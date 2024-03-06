@@ -268,7 +268,7 @@ def train_model(local_rank, world_size, args):
         inputs = {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
-            "target_mask": target_mask
+            # "target_mask": target_mask
         }
         return inputs
 
