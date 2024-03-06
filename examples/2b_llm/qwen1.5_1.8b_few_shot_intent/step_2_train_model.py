@@ -200,7 +200,6 @@ def train_model(local_rank, world_size, args):
         trust_remote_code=True,
         use_fast=False if model.config.model_type == "llama" else True
     )
-    print(tokenizer.__class__.__name__)
     # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
     if tokenizer.__class__.__name__ in ("QWenTokenizer", "Qwen2Tokenizer"):
         tokenizer.pad_token_id = tokenizer.eod_id
@@ -274,6 +273,7 @@ def train_model(local_rank, world_size, args):
         num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
+    train_dataset.set_format(type=None, columns=["input_ids", "attention_mask", "target_mask"])
     valid_dataset = valid_dataset.map(
         encode_with_truncation,
         batched=False,
@@ -281,6 +281,8 @@ def train_model(local_rank, world_size, args):
         num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
+    valid_dataset.set_format(type=None, columns=["input_ids", "attention_mask", "target_mask"])
+
     dataset_info = f"""
     train dataset: {len(train_dataset)}
     valid dataset: {len(valid_dataset)}
