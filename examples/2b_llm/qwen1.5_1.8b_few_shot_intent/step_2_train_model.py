@@ -265,18 +265,16 @@ def train_model(local_rank, world_size, args):
 
     train_dataset = train_dataset.map(
         encode_with_truncation,
-        batched=True,
-        drop_last_batch=True,
-        batch_size=10,
-        num_proc=None,
+        batched=False,
+        keep_in_memory=False,
+        num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "train.cache")
     )
     valid_dataset = valid_dataset.map(
         encode_with_truncation,
-        batched=True,
-        drop_last_batch=True,
-        batch_size=10,
-        num_proc=None,
+        batched=False,
+        keep_in_memory=False,
+        num_proc=None if platform.system() == "Windows" else os.cpu_count() // 2,
         cache_file_name=os.path.join(args.cache_dir, "valid.cache")
     )
     dataset_info = f"""
