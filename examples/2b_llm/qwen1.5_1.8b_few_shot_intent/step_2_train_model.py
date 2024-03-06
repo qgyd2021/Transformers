@@ -182,7 +182,7 @@ def train_model(local_rank, world_size, args):
     model = AutoModelForCausalLM.from_pretrained(
         args.pretrained_model_name_or_path,
         device_map={"": 0},
-        torch_dtype=torch.float16,
+        # torch_dtype=torch.float16,
         # quantization_config=BitsAndBytesConfig(
         #     load_in_4bit=True,
         #     bnb_4bit_compute_dtype=torch.float16,
@@ -226,7 +226,7 @@ def train_model(local_rank, world_size, args):
     # model.config.torch_dtype = torch.float32
 
     # 查看模型种各种类型的参数的情况
-    verify_model_dtype(model)
+    # verify_model_dtype(model)
 
     # dataset
     def encode_with_truncation(examples):
