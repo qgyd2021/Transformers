@@ -200,12 +200,17 @@ def train_model(local_rank, world_size, args):
         trust_remote_code=True,
         use_fast=False if model.config.model_type == "llama" else True
     )
+    print(tokenizer.__class__.__name__)
     # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
     if tokenizer.__class__.__name__ in ("QWenTokenizer", "Qwen2Tokenizer"):
         tokenizer.pad_token_id = tokenizer.eod_id
         tokenizer.bos_token_id = tokenizer.eod_id
         tokenizer.eos_token_id = tokenizer.eod_id
-
+    print(tokenizer.pad_token_id)
+    print(tokenizer.bos_token_id)
+    print(tokenizer.eos_token_id)
+    print(tokenizer.eod_id)
+    exit(0)
     # model
     # casts all the non int8 modules to full precision (fp32) for stability
     model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
