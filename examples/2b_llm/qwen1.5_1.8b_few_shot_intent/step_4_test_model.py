@@ -18,10 +18,7 @@ from project_settings import project_path
 
 def get_args():
     """
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_chinese_modern_poetry
-    python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen_7b_modern_poetry
-
-python3 4.test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/pretrained_models/huggingface/Qwen/Qwen-7B
+python3 step_4_test_model.py --pretrained_model_name_or_path /data/tianxing/PycharmProjects/Transformers/trained_models/qwen1.5_1.8B_few_shot_intent
 
 
     """
@@ -65,10 +62,12 @@ def main():
     )
 
     # QWenTokenizer比较特殊, pad_token_id, bos_token_id, eos_token_id 均 为None. eod_id对应的token为<|endoftext|>
-    if tokenizer.__class__.__name__ == "QWenTokenizer":
+    if tokenizer.__class__.__name__ in ("QWenTokenizer", "Qwen2Tokenizer"):
         tokenizer.pad_token_id = tokenizer.eod_id
         tokenizer.bos_token_id = tokenizer.eod_id
         tokenizer.eos_token_id = tokenizer.eod_id
+    if tokenizer.__class__.__name__ in ("Qwen2TokenizerFast",):
+        tokenizer.bos_token_id = tokenizer.eos_token_id
 
     text = input("User: ")
     while True:
