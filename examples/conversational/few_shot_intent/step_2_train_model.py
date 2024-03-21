@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-"""
-!pip3 install datasets==2.10.1
-"""
 import argparse
 from dataclasses import dataclass, field
 import os
@@ -49,6 +46,9 @@ def get_args():
         default="uer/gpt2-chinese-cluecorpussmall",
         type=str
     )
+
+    # train
+    parser.add_argument("--output_dir", default="serialization_dir", type=str)
 
     args = parser.parse_args()
     return args
@@ -139,7 +139,7 @@ def train_model(local_rank, world_size, args):
 
     # training_args
     training_args = TrainingArguments(
-        output_dir="output_dir",
+        output_dir=args.output_dir,
         evaluation_strategy="steps",
         per_device_train_batch_size=16,
         gradient_accumulation_steps=4,
@@ -161,9 +161,9 @@ def train_model(local_rank, world_size, args):
         metric_for_best_model="loss",
         greater_is_better=False,
         report_to="tensorboard",
-        push_to_hub=True,
-        hub_model_id="few_shot_intent",
-        hub_strategy="every_save",
+        push_to_hub=False,
+        # hub_model_id="few_shot_intent",
+        # hub_strategy="every_save",
         gradient_checkpointing=True,
     )
 
