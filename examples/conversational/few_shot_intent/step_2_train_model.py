@@ -162,6 +162,7 @@ def train_model(local_rank, world_size, args):
         metric_for_best_model="loss",
         greater_is_better=False,
         report_to="tensorboard",
+        dataloader_prefetch_factor=2,
         push_to_hub=False,
         # hub_model_id="few_shot_intent",
         # hub_strategy="every_save",
