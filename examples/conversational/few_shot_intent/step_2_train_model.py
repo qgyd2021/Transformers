@@ -156,6 +156,7 @@ def train_model(local_rank, world_size, args):
         fp16=True if torch.cuda.is_available() else False,
         local_rank=local_rank,
         ddp_backend="nccl",
+        dataloader_num_workers=int(os.cpu_count() // 2),
         remove_unused_columns=True,
         load_best_model_at_end=True,
         metric_for_best_model="loss",
