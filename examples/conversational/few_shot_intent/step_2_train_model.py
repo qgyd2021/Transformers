@@ -3,6 +3,7 @@
 """
 !pip3 install datasets==2.10.1
 """
+import argparse
 from dataclasses import dataclass, field
 import os
 from pathlib import Path
@@ -22,6 +23,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 from datasets import load_dataset, concatenate_datasets
+from datasets import Dataset, DatasetDict, IterableDatasetDict, IterableDataset, load_dataset
 import huggingface_hub
 import torch
 import torch.multiprocessing as mp
@@ -34,29 +36,21 @@ from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.training_args import TrainingArguments
 
 
-@dataclass
-class ScriptArguments:
-    # dataset
-    dataset_path: str = field(default="qgyd2021/few_shot_intent_sft")
-    dataset_split: str = field(default=None)
-    dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
-    dataset_streaming: bool = field(default=False)
-    num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
+def get_args():
+    parser = argparse.ArgumentParser()
 
-    # model
-    # pretrained_model_name_or_path: str = field(
-    #     default="uer/gpt2-chinese-cluecorpussmall" if platform.system() != "Windows" else (project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
-    # )
-    pretrained_model_name_or_path: str = field(
-        default="qgyd2021/few_shot_intent"
+    parser.add_argument("--train_subset", default="train.jsonl", type=str)
+    parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
+
+    parser.add_argument("--cache_dir", default="cache_dir", type=str)
+
+    parser.add_argument(
+        "--pretrained_model_name_or_path",
+        default="uer/gpt2-chinese-cluecorpussmall",
+        type=str
     )
 
-    hf_token: str = field(default="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")
-
-
-def get_args():
-    parser = HfArgumentParser(ScriptArguments)
-    args = parser.parse_args_into_dataclasses(return_remaining_strings=True)[0]
+    args = parser.parse_args()
     return args
 
 
@@ -67,72 +61,27 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    # huggingface_hub.login(token=args.hf_token)
-    huggingface_hub.login(token="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")
+    os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
-    if os.path.exists(args.dataset_cache_dir):
-        shutil.rmtree(args.dataset_cache_dir)
+    dataset_dict = DatasetDict()
+    # dataset_dict = IterableDatasetDict()
+    train_data_files = [args.train_subset]
+    train_dataset = load_dataset(
+        path="json", data_files=[str(file) for file in train_data_files],
+        # streaming=True,
+    )["train"]
+    valid_data_files = [args.valid_subset]
+    valid_dataset = load_dataset(
+        path="json", data_files=[str(file) for file in valid_data_files],
+        # streaming=True,
+    )["train"]
 
-    train_name_list = [
-        "amazon_massive_intent_en_us_prompt",
-        "amazon_massive_intent_zh_cn_prompt",
-        "atis_intent_prompt",
-        "banking77_prompt",
-        "bi_text11_prompt",
-        "bi_text27_prompt",
-        "book6_prompt",
-        "carer_prompt",
-        "chatbots_prompt",
-        "chinese_news_title_prompt",
-        "cmid_4class_prompt",
-        "cmid_36class_prompt",
-        "coig_cqia_prompt",
-        "conv_intent_prompt",
-        "crosswoz_prompt",
-        "dmslots_prompt",
-        "emo2019_prompt",
-        "finance21_prompt",
-        "ide_intent_prompt",
-        "intent_classification_prompt",
-        "jarvis_intent_prompt",
-        "mobile_assistant_prompt",
-        "mtop_intent_prompt",
-        "out_of_scope_prompt",
-        "ri_sawoz_domain_prompt",
-        "ri_sawoz_general_prompt",
-        "small_talk_prompt",
-        "smp2017_task1_prompt",
-        "smp2019_task1_domain_prompt",
-        "smp2019_task1_intent_prompt",
-        "star_wars_prompt",
-        "suicide_intent_prompt",
-        "snips_built_in_intents_prompt",
-        "telemarketing_intent_en_prompt",
-        "telemarketing_intent_cn_prompt",
-        "vira_intents_prompt",
-    ]
-    train_dataset = list()
-    for name in train_name_list:
-        dataset = load_dataset(
-            path=args.dataset_path,
-            name=name,
-            split="train",
-            cache_dir=args.dataset_cache_dir
-        )
-        train_dataset.append(dataset)
-    train_dataset = concatenate_datasets(train_dataset)
+    dataset_dict["train"] = train_dataset
+    dataset_dict["valid"] = valid_dataset
 
-    valid_dataset = list()
-    for name in name_list:
-        dataset = load_dataset(
-            path=args.dataset_path,
-            name=name,
-            split="test",
-            cache_dir=args.dataset_cache_dir
-        )
-        valid_dataset.append(dataset)
-    valid_dataset = concatenate_datasets(valid_dataset)
+    print(dataset_dict)
 
     # pretrained model
     model: GPT2LMHeadModel = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
@@ -271,17 +220,7 @@ def train_on_cpu():
     return
 
 
-def train_on_kaggle_notebook():
-    """
-    train on kaggle notebook with GPU T4 x2
-
-    from shutil import copyfile
-    copyfile(src = "../input/tempdataset/step_2_train_model.py", dst = "../working/step_2_train_model.py")
-
-    import step_2_train_model
-    step_2_train_model.train_on_kaggle_notebook()
-
-    """
+def train_on_gpu():
     args = get_args()
 
     world_size = torch.cuda.device_count()
@@ -290,10 +229,11 @@ def train_on_kaggle_notebook():
     mp.spawn(train_model,
              args=(world_size, args),
              nprocs=world_size,
-             join=True)
+             join=True
+             )
 
     return
 
 
 if __name__ == '__main__':
-    train_on_cpu()
+    train_on_gpu()
