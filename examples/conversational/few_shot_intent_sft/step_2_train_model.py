@@ -67,7 +67,7 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    os.environ["TOKENIZERS_PARALLELISM"] = "true"
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.cache_dir, exist_ok=True)
@@ -99,10 +99,6 @@ def train_model(local_rank, world_size, args):
     def encode_with_truncation(examples: dict):
         prompt_: List[str] = examples.pop("prompt")
         response_: List[str] = examples.pop("response")
-        utterances = [
-            prompt_,
-            response_
-        ]
 
         input_ids_ = list()
         target_mask_ = list()
