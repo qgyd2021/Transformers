@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import argparse
 from dataclasses import dataclass, field
 import os
 from pathlib import Path
 import platform
 import re
+import shutil
 from typing import Dict, List, Optional, Union
 
 if platform.system() == "Windows":
@@ -18,6 +20,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 from datasets import load_dataset, concatenate_datasets
+from datasets import Dataset, DatasetDict, IterableDatasetDict, IterableDataset, load_dataset
 import huggingface_hub
 import torch
 import torch.multiprocessing as mp
@@ -25,38 +28,35 @@ from transformers import HfArgumentParser
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.models.auto import AutoModelForCausalLM, AutoTokenizer
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
-from transformers.trainer import Trainer
 from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.training_args import TrainingArguments
 
-
-@dataclass
-class ScriptArguments:
-    # dataset
-    dataset_path: str = field(default="qgyd2021/lip_service_4chan")
-    dataset_name: str = field(default=None)
-    dataset_split: str = field(default=None)
-    dataset_cache_dir: str = field(default=(project_path / "hub_datasets").as_posix())
-    dataset_streaming: bool = field(default=False)
-    num_workers: int = field(default=None if platform.system() == "Windows" else os.cpu_count() // 2)
-
-    # model
-    # pretrained_model_name_or_path: str = field(
-    #     default="uer/gpt2-chinese-cluecorpussmall"
-    # )
-    # pretrained_model_name_or_path: str = field(
-    #     default=(project_path / "pretrained_models/gpt2-chinese-cluecorpussmall").as_posix()
-    # )
-    pretrained_model_name_or_path: str = field(
-        default="qgyd2021/lip_service_4chan"
-    )
-
-    hf_token: str = field(default=None)
+from toolbox.transformers.data.data_collator import SFTDataCollator
+from toolbox.transformers.modules.loss import TargetLMLoss
+from toolbox.transformers.trainer import Trainer
 
 
 def get_args():
-    parser = HfArgumentParser(ScriptArguments)
-    args = parser.parse_args_into_dataclasses(return_remaining_strings=True)[0]
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--train_subset", default="train.jsonl", type=str)
+    parser.add_argument("--valid_subset", default="valid.jsonl", type=str)
+
+    parser.add_argument("--cache_dir", default="cache_dir", type=str)
+
+    parser.add_argument(
+        "--pretrained_model_name_or_path",
+        default="qgyd2021/few_shot_intent_gpt2_base",
+        type=str
+    )
+
+    # data
+    parser.add_argument("--max_seq_length", default=1024, type=int)
+
+    # train
+    parser.add_argument("--output_dir", default="serialization_dir", type=str)
+
+    args = parser.parse_args()
     return args
 
 
@@ -67,68 +67,89 @@ def train_model(local_rank, world_size, args):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
 
-    huggingface_hub.login(token=args.hf_token)
+    os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
-    name_list = [
-        "chatterbot_10",
-        "moss_003_sft_data_10",
-        "weibo_1",
-        "xiaohuangji_10",
-    ]
+    dataset_dict = DatasetDict()
+    # dataset_dict = IterableDatasetDict()
+    train_data_files = [args.train_subset]
+    train_dataset = load_dataset(
+        path="json", data_files=[str(file) for file in train_data_files],
+        # streaming=True,
+    )["train"]
+    valid_data_files = [args.valid_subset]
+    valid_dataset = load_dataset(
+        path="json", data_files=[str(file) for file in valid_data_files],
+        # streaming=True,
+    )["train"]
 
-    dataset = list()
-    for name in name_list:
-        dataset_dict = load_dataset(
-            path=args.dataset_path,
-            name=name,
-            split=args.dataset_split,
-            cache_dir=args.dataset_cache_dir,
-            # num_proc=args.num_workers if not args.dataset_streaming else None,
-            streaming=args.dataset_streaming,
-        )
-        # print(dataset_dict)
-        dataset.append(dataset_dict["train"])
-    dataset = concatenate_datasets(dataset)
+    dataset_dict["train"] = train_dataset
+    dataset_dict["valid"] = valid_dataset
 
-    if args.dataset_streaming:
-        valid_dataset = dataset.take(args.valid_dataset_size)
-        train_dataset = dataset.skip(args.valid_dataset_size)
-        train_dataset = train_dataset.shuffle(buffer_size=args.shuffle_buffer_size, seed=None)
-    else:
-        dataset = dataset.train_test_split(test_size=4000, seed=None)
-        train_dataset = dataset["train"]
-        valid_dataset = dataset["test"]
+    print(dataset_dict)
 
     # pretrained model
     model: GPT2LMHeadModel = AutoModelForCausalLM.from_pretrained(args.pretrained_model_name_or_path)
     tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model_name_or_path)
 
     # map
-    def encode(examples: dict):
-        questions_ = examples.pop("question")
-        answers_ = examples.pop("answer")
+    def encode_with_truncation(examples: dict):
+        prompt_: List[str] = examples.pop("prompt")
+        response_: List[str] = examples.pop("response")
+        utterances = [
+            prompt_,
+            response_
+        ]
 
-        utterances = list()
-        for question, answer in zip(questions_, answers_):
-            if not isinstance(question, str):
+        input_ids_ = list()
+        target_mask_ = list()
+        attention_mask_ = list()
+        for prompt, response in zip(prompt_, response_):
+            if not isinstance(prompt, str):
                 continue
-            if not isinstance(answer, str):
+            if not isinstance(response, str):
                 continue
-            utterance = question + tokenizer.sep_token + answer
-            utterances.append(utterance)
+            prompt_ids = tokenizer(prompt, add_special_tokens=False).input_ids
+            response_ids = tokenizer(response, add_special_tokens=False).input_ids
 
-        utterances = tokenizer.__call__(
-            text=utterances,
-            truncation=True,
-            padding="longest",
-            max_length=512,
-            return_special_tokens_mask=True,
-        )
-        return utterances
+            input_ids = [
+                tokenizer.bos_token_id,
+                *prompt_ids,
+                tokenizer.sep_token_id,
+                *response_ids,
+                tokenizer.sep_token_id,
+            ]
+
+            target_mask = [0]
+            target_mask += [0] * (len(prompt_ids) + 1)
+            target_mask += [1] * (len(response_ids) + 1)
+
+            if not len(input_ids) == len(target_mask):
+                raise AssertionError(
+                    "input_ids length: {}, target_mask length: {}".format(len(input_ids), len(target_mask))
+                )
+
+            input_ids = input_ids[:args.max_seq_length]
+            target_mask = target_mask[:args.max_seq_length]
+            attention_mask = [1] * len(input_ids)
+
+            if not len(input_ids) == len(target_mask) == len(attention_mask):
+                raise AssertionError
+
+            input_ids_.append(input_ids)
+            target_mask_.append(target_mask)
+            attention_mask_.append(attention_mask)
+
+        inputs = {
+            "input_ids": input_ids_,
+            "attention_mask": attention_mask_,
+            "target_mask": target_mask_
+        }
+        return inputs
 
     train_dataset = train_dataset.map(
-        encode,
+        encode_with_truncation,
         batched=True,
         drop_last_batch=True,
         batch_size=10,
@@ -136,7 +157,7 @@ def train_model(local_rank, world_size, args):
         cache_file_name="train.cache"
     )
     valid_dataset = valid_dataset.map(
-        encode,
+        encode_with_truncation,
         batched=True,
         drop_last_batch=True,
         batch_size=10,
@@ -150,51 +171,42 @@ def train_model(local_rank, world_size, args):
     dataset_info = re.sub(r"[\u0020]{4,}", "", dataset_info)
     print(dataset_info)
 
-    # for k, v in model.named_parameters():
-    #     if k.__contains__(".bias"):
-    #         v.requires_grad = True
-    #     else:
-    #         v.requires_grad = False
+    # 初始化损失函数
+    loss_func = TargetLMLoss(ignore_index=-100)
 
-    # for k, v in model.named_parameters():
-    #     if v.requires_grad is True:
-    #         print(k)
-
-    data_collator = DataCollatorForLanguageModeling(
-        tokenizer=tokenizer, mlm=False
-    )
+    data_collator = SFTDataCollator(tokenizer, args.max_seq_length)
 
     # training_args
     training_args = TrainingArguments(
-        output_dir="output_dir",
+        output_dir=args.output_dir,
         evaluation_strategy="steps",
-        per_device_train_batch_size=8,
+        per_device_train_batch_size=16,
         gradient_accumulation_steps=4,
         learning_rate=2e-4,
         weight_decay=0,
         max_grad_norm=1.0,
         num_train_epochs=1.0,
         warmup_steps=1000,
-        logging_steps=100,
+        logging_steps=1000,
         save_strategy="steps",
-        save_steps=100,
+        save_steps=1000,
         save_total_limit=2,
         no_cuda=False,
         fp16=True if torch.cuda.is_available() else False,
         local_rank=local_rank,
         ddp_backend="nccl",
+        dataloader_num_workers=int(os.cpu_count() // 2),
         remove_unused_columns=True,
         load_best_model_at_end=True,
         metric_for_best_model="loss",
         greater_is_better=False,
         report_to="tensorboard",
-        push_to_hub=True,
-        hub_model_id="lip_service_4chan",
-        hub_strategy="every_save",
+        dataloader_prefetch_factor=2,
+        push_to_hub=False,
+        # hub_model_id="few_shot_intent",
+        # hub_strategy="every_save",
         gradient_checkpointing=True,
     )
-
-    print("is_available: {}".format(torch.cuda.is_available()))
 
     partial_state_str = f"""
     distributed_type: {training_args.distributed_state.distributed_type}
@@ -225,7 +237,8 @@ def train_model(local_rank, world_size, args):
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
         tokenizer=tokenizer,
-        callbacks=callbacks
+        callbacks=callbacks,
+        compute_loss=loss_func,
     )
     train_result = trainer.train()
 
@@ -249,17 +262,7 @@ def train_on_cpu():
     return
 
 
-def train_on_kaggle_notebook():
-    """
-    train on kaggle notebook with GPU T4 x2
-
-    from shutil import copyfile
-    copyfile(src = "../input/tempdataset/step_2_train_model.py", dst = "../working/step_2_train_model.py")
-
-    import step_2_train_model
-    step_2_train_model.train_on_kaggle_notebook()
-
-    """
+def train_on_gpu():
     args = get_args()
 
     world_size = torch.cuda.device_count()
@@ -268,10 +271,14 @@ def train_on_kaggle_notebook():
     mp.spawn(train_model,
              args=(world_size, args),
              nprocs=world_size,
-             join=True)
+             join=True
+             )
 
     return
 
 
 if __name__ == '__main__':
-    train_on_kaggle_notebook()
+    if platform.system() == "Windows":
+        train_on_cpu()
+    else:
+        train_on_gpu()

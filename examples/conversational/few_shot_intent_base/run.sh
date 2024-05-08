@@ -3,7 +3,9 @@
 # sh run.sh --stage 0 --stop_stage 0 --system_version centos
 # sh run.sh --stage 1 --stop_stage 1 --system_version centos
 # sh run.sh --stage 2 --stop_stage 2 --system_version centos
-# sh run.sh --stage 4 --stop_stage 4 --system_version centos --final_model_name qwen1.5_1.8B_few_shot_intent
+# sh run.sh --stage 4 --stop_stage 4 --system_version centos --final_model_name few_shot_intent_gpt2_base
+
+# tensorboard --logdir runs --bind_all
 
 # params
 system_version="windows";
@@ -15,7 +17,7 @@ pretrained_model_supplier=uer
 pretrained_model_name=gpt2-chinese-cluecorpussmall
 
 final_checkpoint_dir=final
-final_model_name=few_shot_intent_gpt2
+final_model_name=few_shot_intent_gpt2_base
 
 patience=0
 num_epochs=3

@@ -4,6 +4,7 @@
 https://colab.research.google.com/drive/1L7Zq3KBq9HON2fslMhpC9Oyi8zj6pEtc?usp=sharing
 
 """
+import transformers
 
 
 if __name__ == '__main__':
