@@ -20,7 +20,6 @@ jiwer==2.6.0
 ipywidgets==8.0.4
 urllib3==1.26.16
 speechbrain
-bitsandbytes-windows==0.37.5
 tiktoken==0.5.1
 trl==0.7.1
 scikit-learn==1.2.2

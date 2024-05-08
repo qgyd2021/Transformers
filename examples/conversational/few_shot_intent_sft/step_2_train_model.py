@@ -46,7 +46,8 @@ def get_args():
 
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        default="qgyd2021/few_shot_intent_gpt2_base",
+        # default="qgyd2021/few_shot_intent_gpt2_base",
+        default=(project_path / "pretrained_models/huggingface/qgyd2021/few_shot_intent_gpt2_base").as_posix(),
         type=str
     )
 
@@ -84,13 +85,13 @@ def train_model():
     train_data_files = [args.train_subset]
     train_dataset = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files],
-        # features=features
+        features=features
         # streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     valid_dataset = load_dataset(
         path="json", data_files=[str(file) for file in valid_data_files],
-        # features=features
+        features=features
         # streaming=True,
     )["train"]
 
@@ -120,7 +121,7 @@ def train_model():
             response_ids = tokenizer(response, add_special_tokens=False).input_ids
 
             input_ids = [
-                tokenizer.bos_token_id,
+                tokenizer.cls_token_id,
                 *prompt_ids,
                 tokenizer.sep_token_id,
                 *response_ids,
@@ -202,7 +203,7 @@ def train_model():
         # local_rank=local_rank,
         ddp_backend="nccl",
         dataloader_num_workers=int(os.cpu_count() // 2),
-        remove_unused_columns=True,
+        remove_unused_columns=False,
         load_best_model_at_end=True,
         metric_for_best_model="loss",
         greater_is_better=False,

@@ -73,6 +73,11 @@ def main():
         "vira_intents_prompt",
     ]
 
+    name_list = [
+        "telemarketing_intent_cn_prompt",
+
+    ]
+
     with open(args.train_subset, "w", encoding="utf-8") as f:
         for _ in range(args.num_epochs):
             for name in name_list:
