@@ -19,7 +19,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
-from datasets import load_dataset, concatenate_datasets
+import datasets
 from datasets import Dataset, DatasetDict, IterableDatasetDict, IterableDataset, load_dataset
 import huggingface_hub
 import torch
@@ -67,16 +67,30 @@ def train_model():
     os.makedirs(args.cache_dir, exist_ok=True)
 
     # dataset
+    features = datasets.Features(
+        {
+            "prompt": datasets.Value("string"),
+            "response": datasets.Value("string"),
+            "not_applicable": datasets.Value("bool"),
+            "intent": datasets.Value("string"),
+            "intent_version": datasets.Value("string"),
+            "n_way": datasets.Value("int32"),
+            "n_shot": datasets.Value("int32"),
+            "description": datasets.Value("string"),
+        }
+    )
     dataset_dict = DatasetDict()
     # dataset_dict = IterableDatasetDict()
     train_data_files = [args.train_subset]
     train_dataset = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files],
+        features=features
         # streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     valid_dataset = load_dataset(
         path="json", data_files=[str(file) for file in valid_data_files],
+        features=features
         # streaming=True,
     )["train"]
 
