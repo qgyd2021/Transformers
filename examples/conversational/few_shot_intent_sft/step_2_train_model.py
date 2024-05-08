@@ -177,6 +177,7 @@ def train_model(local_rank, world_size, args):
         num_proc=None,
         cache_file_name="valid.cache"
     )
+    valid_dataset.remove_columns(column_names=["target_mask"])
     dataset_info = f"""
     train dataset: {len(train_dataset)}
     valid dataset: {len(valid_dataset)}
@@ -209,7 +210,8 @@ def train_model(local_rank, world_size, args):
         local_rank=local_rank,
         ddp_backend="nccl",
         dataloader_num_workers=int(os.cpu_count() // 2),
-        remove_unused_columns=False,
+        remove_unused_columns=True,
+        label_names=["target_mask"],
         load_best_model_at_end=True,
         metric_for_best_model="loss",
         greater_is_better=False,
@@ -220,6 +222,9 @@ def train_model(local_rank, world_size, args):
         # hub_strategy="every_save",
         gradient_checkpointing=True,
     )
+
+    # `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`
+    model.config.use_cache = False
 
     partial_state_str = f"""
     distributed_type: {training_args.distributed_state.distributed_type}
