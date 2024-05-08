@@ -12,7 +12,7 @@ class SFTDataCollator(object):
 
     def __call__(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
         # 找出batch中的最大长度.
-        lengths = [len(x['input_ids']) for x in batch]
+        lengths = [len(x["input_ids"]) for x in batch]
         # 取出batch中的最大长度, 如果超过max_seq_length, 则取max_seq_length.
         batch_max_len = min(max(lengths), self.max_seq_length)
         # batch_max_len = self.max_seq_length
@@ -20,6 +20,7 @@ class SFTDataCollator(object):
         input_ids_batch, attention_mask_batch, target_mask_batch = [], [], []
         # truncate and padding
         for x in batch:
+            print(x)
             input_ids = x["input_ids"]
             attention_mask = x["attention_mask"]
             target_mask = x["target_mask"]
