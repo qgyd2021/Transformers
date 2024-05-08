@@ -85,13 +85,13 @@ def train_model():
     train_data_files = [args.train_subset]
     train_dataset = load_dataset(
         path="json", data_files=[str(file) for file in train_data_files],
-        features=features
+        features=features if platform.system() == "Windows" else None,
         # streaming=True,
     )["train"]
     valid_data_files = [args.valid_subset]
     valid_dataset = load_dataset(
         path="json", data_files=[str(file) for file in valid_data_files],
-        features=features
+        features=features if platform.system() == "Windows" else None,
         # streaming=True,
     )["train"]
 
