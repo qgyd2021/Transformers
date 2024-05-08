@@ -20,6 +20,7 @@ hf_hub_cache = (project_path / "cache/huggingface/hub").as_posix()
 os.environ["HUGGINGFACE_HUB_CACHE"] = hf_hub_cache
 
 import datasets
+from datasets import load_dataset, concatenate_datasets
 from datasets import Dataset, DatasetDict, IterableDatasetDict, IterableDataset, load_dataset
 import huggingface_hub
 import torch
@@ -46,8 +47,7 @@ def get_args():
 
     parser.add_argument(
         "--pretrained_model_name_or_path",
-        # default="qgyd2021/few_shot_intent_gpt2_base",
-        default=(project_path / "pretrained_models/huggingface/qgyd2021/few_shot_intent_gpt2_base").as_posix(),
+        default="qgyd2021/few_shot_intent_gpt2_base",
         type=str
     )
 
@@ -61,8 +61,14 @@ def get_args():
     return args
 
 
-def train_model():
-    args = get_args()
+def train_model(local_rank, world_size, args):
+    os.environ["RANK"] = f"{local_rank}"
+    os.environ["LOCAL_RANK"] = f"{local_rank}"
+    os.environ["WORLD_SIZE"] = f"{world_size}"
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.cache_dir, exist_ok=True)
@@ -200,7 +206,7 @@ def train_model():
         save_total_limit=2,
         no_cuda=False,
         fp16=True if torch.cuda.is_available() else False,
-        # local_rank=local_rank,
+        local_rank=local_rank,
         ddp_backend="nccl",
         dataloader_num_workers=int(os.cpu_count() // 2),
         remove_unused_columns=False,
@@ -262,5 +268,30 @@ def train_model():
     return
 
 
+def train_on_cpu():
+    args = get_args()
+
+    train_model(0, 1, args)
+    return
+
+
+def train_on_gpu():
+    args = get_args()
+
+    world_size = torch.cuda.device_count()
+    print("world_size: {}".format(world_size))
+
+    mp.spawn(train_model,
+             args=(world_size, args),
+             nprocs=world_size,
+             join=True
+             )
+
+    return
+
+
 if __name__ == '__main__':
-    train_model()
+    if platform.system() == "Windows":
+        train_on_cpu()
+    else:
+        train_on_gpu()
