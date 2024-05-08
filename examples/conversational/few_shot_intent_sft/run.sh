@@ -13,8 +13,8 @@ verbose=true;
 stage=0 # start from 0 if you need to start from data preparation
 stop_stage=5
 
-pretrained_model_supplier=uer
-pretrained_model_name=gpt2-chinese-cluecorpussmall
+pretrained_model_supplier=qgyd2021
+pretrained_model_name=few_shot_intent_gpt2_base
 
 final_checkpoint_dir=final
 final_model_name=few_shot_intent_gpt2_sft
